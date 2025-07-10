@@ -1,10 +1,30 @@
 # Super Star Trek (C# Port)
 
-A C# console application port of the classic Super Star Trek game, originally written in BASIC.
+A C# console application port of the classic Super Star Trek game, originally written in BASIC by Mike Mayfield in 1971.
 
-## About
+## About the Game
 
-This is a faithful recreation of the Super Star Trek game that was originally created by Mike Mayfield and later modified by various contributors. The original BASIC source code is preserved in the `src/SuperStarTrek.Basic` folder for reference.
+Super Star Trek is a strategic space simulation game where you command the USS Enterprise (NCC-1701) on a critical mission to eliminate Klingon warships that have invaded Federation space. Originally created by Mike Mayfield and later enhanced by various contributors including Dave Ahl, Bob Leedom, and John Gorders, this game became one of the most famous early computer games.
+
+### The Mission
+
+You are the captain of the USS Enterprise with a time-critical mission:
+- **Objective**: Destroy all Klingon battle cruisers in the galaxy
+- **Time Limit**: Limited stardates before they attack Federation Headquarters
+- **Resources**: Limited energy, photon torpedoes, and shield power
+- **Support**: Scattered starbases for resupply and repairs
+
+### Game Features
+
+- **8x8 Galaxy Grid**: Navigate through 64 quadrants, each containing 8x8 sectors
+- **Strategic Combat**: Use phasers and photon torpedoes against Klingon ships
+- **Resource Management**: Manage energy, shields, and torpedo supplies
+- **Ship Systems**: Deal with random damage to various ship components
+- **Tactical Decisions**: Choose when to fight, flee, or seek starbase support
+
+## Historical Context
+
+This C# port preserves the gameplay mechanics and feel of the original 1978 Microsoft BASIC version while modernizing the codebase. The original BASIC source code is preserved in the `src/SuperStarTrek.Basic` folder for reference and historical accuracy.
 
 ## Getting Started
 
@@ -64,21 +84,54 @@ SuperStarTrek/
 └── README.md                   # This file
 ```
 
-## Game Rules
+## Game Commands
 
-Super Star Trek is a strategic simulation game where you command the USS Enterprise on a mission to eliminate Klingon warships that have invaded Federation space. You have limited time, energy, and resources to complete your mission.
+The game uses a command-driven interface with the following commands:
 
-### Commands
-
-- **NAV** - Navigate the Enterprise
-- **SRS** - Short Range Sensor scan
-- **LRS** - Long Range Sensor scan
-- **PHA** - Fire phasers
+- **NAV** - Navigate the Enterprise through space
+- **SRS** - Short Range Sensor scan (shows current quadrant)
+- **LRS** - Long Range Sensor scan (shows surrounding quadrants)
+- **PHA** - Fire phasers at enemy ships
 - **TOR** - Fire photon torpedoes
-- **SHE** - Shield control
-- **DAM** - Damage control report
-- **COM** - Library computer
-- **XXX** - Resign command
+- **SHE** - Raise or lower shield power
+- **DAM** - Damage control reports and repairs
+- **COM** - Access library computer functions
+- **XXX** - Resign command (quit game)
+
+### Library Computer Functions
+
+When using the **COM** command, you can access:
+- **0** - Cumulative galactic record
+- **1** - Status report
+- **2** - Photon torpedo data
+- **3** - Starbase navigation data
+- **4** - Direction/distance calculator
+- **5** - Galaxy region name map
+
+## Game Elements
+
+### Space Objects
+- **`<*>`** - USS Enterprise (your ship)
+- **`+K+`** - Klingon battle cruiser
+- **`>!<`** - Starbase
+- **` * `** - Star
+
+### Ship Status
+- **Condition Green** - All systems normal
+- **Condition Yellow** - Low energy
+- **Condition Red** - Enemy ships present
+- **Docked** - Adjacent to starbase (automatic resupply)
+
+### Damage System
+The Enterprise has 8 main systems that can be damaged:
+1. Warp Engines
+2. Short Range Sensors
+3. Long Range Sensors
+4. Phaser Control
+5. Photon Tubes
+6. Damage Control
+7. Shield Control
+8. Library Computer
 
 ## Development Notes
 
