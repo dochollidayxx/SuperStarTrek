@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch SuperStarTrek",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/SuperStarTrek.Game/bin/Debug/net9.0/SuperStarTrek.Game.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/SuperStarTrek.Game",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Attach to Process",
+            "type": "coreclr",
+            "request": "attach"
+        }
+    ]
+}
