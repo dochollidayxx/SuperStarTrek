@@ -158,7 +158,7 @@ namespace SuperStarTrek.Game.Models
             foreach (var system in ShipSystemExtensions.GetAllSystems())
             {
                 double currentDamage = _systemDamage[system];
-                
+
                 // Skip systems that aren't damaged
                 if (currentDamage >= 0)
                 {
@@ -167,7 +167,7 @@ namespace SuperStarTrek.Game.Models
 
                 // Apply repair amount
                 double newDamage = currentDamage + repairAmount;
-                
+
                 // Handle partial repairs (BASIC lines 2790-2800)
                 if (newDamage > -0.1 && newDamage < 0)
                 {
@@ -182,7 +182,7 @@ namespace SuperStarTrek.Game.Models
                 {
                     // System fully repaired (newDamage >= 0)
                     _systemDamage[system] = 0.0;
-                    
+
                     // Report repair completion (BASIC lines 2810-2840)
                     if (firstRepair)
                     {
@@ -197,13 +197,13 @@ namespace SuperStarTrek.Game.Models
             if (random.NextDouble() <= 0.2) // 20% chance of random event
             {
                 var randomSystem = (ShipSystem)random.Next(1, 9); // FNR(1) function
-                
+
                 if (random.NextDouble() < 0.6) // 60% chance of damage
                 {
                     // Random damage (BASIC lines 2930-2960)
                     double damageAmount = random.NextDouble() * 5 + 1; // RND(1)*5+1
                     _systemDamage[randomSystem] -= damageAmount;
-                    
+
                     if (firstRepair)
                     {
                         repairMessages.Add("DAMAGE CONTROL REPORT:");
@@ -215,7 +215,7 @@ namespace SuperStarTrek.Game.Models
                     // Random improvement (BASIC lines 3000-3030)
                     double improvementAmount = random.NextDouble() * 3 + 1; // RND(1)*3+1
                     _systemDamage[randomSystem] += improvementAmount;
-                    
+
                     if (firstRepair)
                     {
                         repairMessages.Add("DAMAGE CONTROL REPORT:");
@@ -254,10 +254,93 @@ namespace SuperStarTrek.Game.Models
             // Select random system and apply damage (BASIC: R1=FNR(1):D(R1)=D(R1)-H/S-.5*RND(1))
             var randomSystem = (ShipSystem)random.Next(1, 9); // FNR(1) function
             double damageAmount = (shieldLevel > 0 ? (double)hitStrength / shieldLevel : hitStrength) + 0.5 * random.NextDouble();
-            
+
             _systemDamage[randomSystem] -= damageAmount;
-            
+
             return randomSystem.GetDisplayName();
+        }
+
+        /// <summary>
+        /// Applies damage to the ship, considering shield absorption.
+        /// Shields absorb damage before it affects the hull and systems.
+        /// Based on BASIC combat damage logic from lines 6060-6100.
+        /// </summary>
+        /// <param name="damageAmount">Amount of damage to apply</param>
+        /// <param name="random">Random number generator for damage calculations</param>
+        /// <returns>Damage report messages</returns>
+        public List<string> ApplyShieldedDamage(int damageAmount, Random random)
+        {
+            var messages = new List<string>();
+
+            // If docked, starbase shields protect the Enterprise (BASIC line 6010)
+            if (IsDocked)
+            {
+                messages.Add("STARBASE SHIELDS PROTECT THE ENTERPRISE");
+                return messages;
+            }
+
+            // Apply damage to shields first (BASIC line 6060)
+            Shields -= damageAmount;
+
+            // Check if shields are destroyed
+            if (Shields <= 0)
+            {
+                // Shields down - ship is destroyed
+                messages.Add("");
+                messages.Add("THE ENTERPRISE HAS BEEN DESTROYED.  THE FEDERATION ");
+                messages.Add("WILL BE CONQUERED");
+                return messages;
+            }
+
+            // Shields absorbed the damage (BASIC line 6100)
+            messages.Add($"      <SHIELDS DOWN TO {Shields} UNITS>");
+
+            // Apply system damage if hit was significant enough (handled by existing ApplyCombatDamage)
+            var damagedSystem = ApplyCombatDamage(damageAmount, Shields, random);
+            if (damagedSystem != null)
+            {
+                messages.Add($"DAMAGE CONTROL REPORTS {damagedSystem} DAMAGED BY THE HIT'");
+            }
+
+            return messages;
+        }
+
+        /// <summary>
+        /// Handles automatic shield lowering when docking at a starbase.
+        /// Based on BASIC line 6620: "SHIELDS DROPPED FOR DOCKING PURPOSES"
+        /// </summary>
+        /// <returns>Message about shield status change</returns>
+        public string DockAtStarbase()
+        {
+            IsDocked = true;
+
+            // Automatically lower shields when docking (BASIC line 6620)
+            if (Shields > 0)
+            {
+                Shields = 0;
+                return "SHIELDS DROPPED FOR DOCKING PURPOSES";
+            }
+
+            return "";
+        }
+
+        /// <summary>
+        /// Handles undocking from a starbase
+        /// </summary>
+        public void UndockFromStarbase()
+        {
+            IsDocked = false;
+        }
+
+        /// <summary>
+        /// Checks if shields are dangerously low and should trigger a warning.
+        /// Based on BASIC line 1580 shield warning logic.
+        /// </summary>
+        /// <returns>True if shields are dangerously low</returns>
+        public bool AreShieldsDangerouslyLow()
+        {
+            // This threshold matches the original game's warning system
+            return Shields < 200 && !IsDocked;
         }
     }
 }

@@ -107,7 +107,7 @@ namespace SuperStarTrek.Tests.Commands
             Assert.True(result.TimeConsumed > 0);
             Assert.Equal(0.0, gameState.Enterprise.GetSystemDamage(ShipSystem.WarpEngines));
             Assert.Equal(0.0, gameState.Enterprise.GetSystemDamage(ShipSystem.PhaserControl));
-            
+
             var output = consoleOutput.ToString();
             Assert.Contains("REPAIRS COMPLETED.", output);
         }

@@ -108,7 +108,7 @@ namespace SuperStarTrek.Tests.Models
                 var newEnterprise = new Enterprise();
                 newEnterprise.SetSystemDamage(ShipSystem.WarpEngines, -1.0);
                 var messages = newEnterprise.PerformAutomaticRepairs(1.0, new Random(i));
-                
+
                 if (messages.Any(m => m.Contains("DAMAGED") || m.Contains("STATE OF REPAIR IMPROVED")))
                 {
                     eventOccurred = true;
@@ -127,7 +127,7 @@ namespace SuperStarTrek.Tests.Models
             int hitStrength = 50;
             int shieldLevel = 100;
             // Use a random that won't trigger the skip conditions
-            var controlledRandom = new Random(123); 
+            var controlledRandom = new Random(123);
 
             // Act
             string? damagedSystem = _enterprise.ApplyCombatDamage(hitStrength, shieldLevel, controlledRandom);
@@ -145,7 +145,7 @@ namespace SuperStarTrek.Tests.Models
                     break;
                 }
             }
-            
+
             Assert.True(damageOccurred, "Combat damage should occur with appropriate random values");
         }
 
@@ -161,7 +161,7 @@ namespace SuperStarTrek.Tests.Models
 
             // Assert
             Assert.Null(damagedSystem); // No damage should occur
-            
+
             // Verify no systems were damaged
             foreach (var system in ShipSystemExtensions.GetAllSystems())
             {
@@ -200,7 +200,7 @@ namespace SuperStarTrek.Tests.Models
                 if (result != null)
                 {
                     damageOccurred = true;
-                    
+
                     // With no shields, damage should be significant
                     bool significantDamageOccurred = ShipSystemExtensions.GetAllSystems()
                         .Any(s => testEnterprise.GetSystemDamage(s) < -50);
