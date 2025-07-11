@@ -67,6 +67,16 @@ namespace SuperStarTrek.Game
                 try
                 {
                     DisplayStatus();
+
+                    // Check for emergency conditions before accepting commands
+                    if (CheckForEmergencyConditions())
+                    {
+                        // Ship is stranded - game over
+                        _gameState.SetShipStranded();
+                        DisplayGameOver();
+                        break;
+                    }
+
                     ProcessCommand();
 
                     if (_gameState.IsGameOver)
@@ -305,6 +315,48 @@ namespace SuperStarTrek.Game
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
             _gameInProgress = false;
+        }
+
+        /// <summary>
+        /// Checks for emergency conditions that would strand the ship
+        /// Returns true if the ship is stranded and cannot continue
+        /// </summary>
+        private bool CheckForEmergencyConditions()
+        {
+            if (_gameState == null)
+            {
+                return false;
+            }
+
+            var enterprise = _gameState.Enterprise;
+
+            // Check for fatal error condition from original BASIC lines 1990-2050
+            // If (shields + energy) <= 10 AND (energy <= 10 AND shield control is damaged)
+            var totalAvailableEnergy = enterprise.Shields + enterprise.Energy;
+            var isShieldControlDamaged = enterprise.GetSystemDamage(ShipSystem.ShieldControl) < 0;
+
+            if (totalAvailableEnergy <= 10 && (enterprise.Energy <= 10 && isShieldControlDamaged))
+            {
+                DisplayFatalErrorMessage();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Displays the fatal error message when ship is stranded
+        /// </summary>
+        private void DisplayFatalErrorMessage()
+        {
+            Console.WriteLine();
+            Console.WriteLine("** FATAL ERROR **   YOU'VE JUST STRANDED YOUR SHIP IN");
+            Console.WriteLine("SPACE");
+            Console.WriteLine("YOU HAVE INSUFFICIENT MANEUVERING ENERGY,");
+            Console.WriteLine(" AND SHIELD CONTROL");
+            Console.WriteLine("IS PRESENTLY INCAPABLE OF CROSS");
+            Console.WriteLine("-CIRCUITING TO ENGINE ROOM!!");
+            Console.WriteLine();
         }
     }
 }
