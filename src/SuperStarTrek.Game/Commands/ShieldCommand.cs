@@ -36,13 +36,13 @@ namespace SuperStarTrek.Game.Commands
                 Console.WriteLine($"ENERGY AVAILABLE = {enterprise.Energy + enterprise.Shields}");
                 Console.WriteLine($"CURRENT SHIELD LEVEL = {enterprise.Shields} UNITS");
                 Console.Write("NUMBER OF UNITS TO SHIELDS");
-                
+
                 string? input = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(input))
                 {
                     return CommandResult.Success("<SHIELDS UNCHANGED>");
                 }
-                
+
                 parameters = new[] { input.Trim() };
             }
 

@@ -172,7 +172,7 @@ namespace SuperStarTrek.Tests.Models
             // Assert
             Assert.Equal(975, _enterprise.Shields); // Shields reduced
             Assert.Contains(messages, m => m.Contains("SHIELDS DOWN TO 975 UNITS"));
-            
+
             // Check if system damage was applied (depends on random and damage calculations)
             // The exact system depends on random number generation and damage threshold
             bool systemDamageReported = messages.Any(m => m.Contains("DAMAGE CONTROL REPORTS") && m.Contains("DAMAGED"));
@@ -212,7 +212,7 @@ namespace SuperStarTrek.Tests.Models
             Assert.Equal(650, _enterprise.Shields); // 800 - 150 = 650
             Assert.Equal(2200, _enterprise.Energy); // Energy unchanged by shield absorption
             Assert.Contains(messages, m => m.Contains("SHIELDS DOWN TO 650 UNITS"));
-            
+
             // Verify shield absorption worked and ship wasn't destroyed
             Assert.True(_enterprise.Shields > 0);
             Assert.DoesNotContain(messages, m => m.Contains("ENTERPRISE HAS BEEN DESTROYED"));
