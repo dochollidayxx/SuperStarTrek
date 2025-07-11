@@ -59,14 +59,19 @@ namespace SuperStarTrek.Game.Models
         public bool IsMissionComplete => KlingonsRemaining <= 0;
 
         /// <summary>
-        /// Whether the mission has failed (time expired or ship destroyed)
+        /// Whether the mission has failed (time expired, ship destroyed, or ship stranded)
         /// </summary>
-        public bool IsMissionFailed => RemainingTime <= 0 || Enterprise.Energy <= 0;
+        public bool IsMissionFailed => RemainingTime <= 0 || Enterprise.Energy <= 0 || IsShipStranded;
 
         /// <summary>
         /// Whether the game is over (mission complete or failed)
         /// </summary>
         public bool IsGameOver => IsMissionComplete || IsMissionFailed;
+
+        /// <summary>
+        /// Whether the ship is stranded and unable to continue
+        /// </summary>
+        public bool IsShipStranded { get; private set; }
 
         /// <summary>
         /// Random number generator for game events
@@ -168,6 +173,14 @@ namespace SuperStarTrek.Game.Models
         }
 
         /// <summary>
+        /// Marks the ship as stranded due to emergency conditions
+        /// </summary>
+        public void SetShipStranded()
+        {
+            IsShipStranded = true;
+        }
+
+        /// <summary>
         /// Calculates the efficiency rating as in the original game
         /// </summary>
         public double CalculateEfficiencyRating()
@@ -186,11 +199,21 @@ namespace SuperStarTrek.Game.Models
         public string GetMissionStatus()
         {
             if (IsMissionComplete)
+            {
                 return "MISSION ACCOMPLISHED!";
+            }
             if (RemainingTime <= 0)
+            {
                 return "MISSION FAILED - TIME EXPIRED";
+            }
             if (Enterprise.Energy <= 0)
+            {
                 return "MISSION FAILED - ENTERPRISE DESTROYED";
+            }
+            if (IsShipStranded)
+            {
+                return "MISSION FAILED - SHIP STRANDED IN SPACE";
+            }
 
             return $"MISSION IN PROGRESS - {KlingonsRemaining} KLINGONS REMAINING";
         }

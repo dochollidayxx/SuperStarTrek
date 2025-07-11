@@ -48,7 +48,9 @@
             "type": "process",
             "args": [
                 "test",
-                "${workspaceFolder}/tests/SuperStarTrek.Tests"
+                "${workspaceFolder}/tests/SuperStarTrek.Tests",
+                "--parallel",
+                "false"
             ],
             "problemMatcher": "$msCompile",
             "group": {
