@@ -15,22 +15,22 @@ namespace SuperStarTrek.Tests.Commands
             // Arrange
             var game = new StarTrekGame();
             var gameState = new GameState(42); // Create GameState directly
-            
+
             // Set conditions where ship should NOT be stranded
             gameState.Enterprise.Energy = 50;
             gameState.Enterprise.Shields = 50;
             // Shield control is not damaged (default is 0.0)
-            
+
             // Use reflection to set the private _gameState field
-            var gameStateField = typeof(StarTrekGame).GetField("_gameState", 
+            var gameStateField = typeof(StarTrekGame).GetField("_gameState",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             gameStateField!.SetValue(game, gameState);
-            
+
             // Act - Use reflection to access private method for testing
-            var checkMethod = typeof(StarTrekGame).GetMethod("CheckForEmergencyConditions", 
+            var checkMethod = typeof(StarTrekGame).GetMethod("CheckForEmergencyConditions",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             bool isStranded = (bool)checkMethod!.Invoke(game, null)!;
-            
+
             // Assert
             Assert.False(isStranded);
             Assert.False(gameState.IsShipStranded);
@@ -42,22 +42,22 @@ namespace SuperStarTrek.Tests.Commands
             // Arrange
             var game = new StarTrekGame();
             var gameState = new GameState(42); // Create GameState directly
-            
+
             // Set conditions: low total energy but shield control works
             gameState.Enterprise.Energy = 5;
             gameState.Enterprise.Shields = 5;
             // Shield control is not damaged (default is 0.0)
-            
+
             // Use reflection to set the private _gameState field
-            var gameStateField = typeof(StarTrekGame).GetField("_gameState", 
+            var gameStateField = typeof(StarTrekGame).GetField("_gameState",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             gameStateField!.SetValue(game, gameState);
-            
+
             // Act - Use reflection to access private method for testing
-            var checkMethod = typeof(StarTrekGame).GetMethod("CheckForEmergencyConditions", 
+            var checkMethod = typeof(StarTrekGame).GetMethod("CheckForEmergencyConditions",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             bool isStranded = (bool)checkMethod!.Invoke(game, null)!;
-            
+
             // Assert
             Assert.False(isStranded);
             Assert.False(gameState.IsShipStranded);
@@ -69,7 +69,7 @@ namespace SuperStarTrek.Tests.Commands
             // Arrange
             var game = new StarTrekGame();
             var gameState = new GameState(42); // Create GameState directly
-            
+
             // Set fatal error conditions: 
             // - Total energy (shields + energy) <= 10
             // - Energy <= 10 
@@ -77,17 +77,17 @@ namespace SuperStarTrek.Tests.Commands
             gameState.Enterprise.Energy = 5;
             gameState.Enterprise.Shields = 5;
             gameState.Enterprise.SetSystemDamage(ShipSystem.ShieldControl, -1.0);
-            
+
             // Use reflection to set the private _gameState field
-            var gameStateField = typeof(StarTrekGame).GetField("_gameState", 
+            var gameStateField = typeof(StarTrekGame).GetField("_gameState",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             gameStateField!.SetValue(game, gameState);
-            
+
             // Act - Use reflection to access private method for testing
-            var checkMethod = typeof(StarTrekGame).GetMethod("CheckForEmergencyConditions", 
+            var checkMethod = typeof(StarTrekGame).GetMethod("CheckForEmergencyConditions",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             bool isStranded = (bool)checkMethod!.Invoke(game, null)!;
-            
+
             // Assert
             Assert.True(isStranded);
         }
@@ -98,22 +98,22 @@ namespace SuperStarTrek.Tests.Commands
             // Arrange
             var game = new StarTrekGame();
             var gameState = new GameState(42); // Create GameState directly
-            
+
             // Edge case: exactly at the boundary conditions
             gameState.Enterprise.Energy = 10;
             gameState.Enterprise.Shields = 0;
             gameState.Enterprise.SetSystemDamage(ShipSystem.ShieldControl, -0.5);
-            
+
             // Use reflection to set the private _gameState field
-            var gameStateField = typeof(StarTrekGame).GetField("_gameState", 
+            var gameStateField = typeof(StarTrekGame).GetField("_gameState",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             gameStateField!.SetValue(game, gameState);
-            
+
             // Act - Use reflection to access private method for testing
-            var checkMethod = typeof(StarTrekGame).GetMethod("CheckForEmergencyConditions", 
+            var checkMethod = typeof(StarTrekGame).GetMethod("CheckForEmergencyConditions",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             bool isStranded = (bool)checkMethod!.Invoke(game, null)!;
-            
+
             // Assert
             Assert.True(isStranded);
         }
@@ -124,22 +124,22 @@ namespace SuperStarTrek.Tests.Commands
             // Arrange
             var game = new StarTrekGame();
             var gameState = new GameState(42); // Create GameState directly
-            
+
             // Edge case: just above the boundary (11 > 10)
             gameState.Enterprise.Energy = 6;
             gameState.Enterprise.Shields = 5;
             gameState.Enterprise.SetSystemDamage(ShipSystem.ShieldControl, -0.5);
-            
+
             // Use reflection to set the private _gameState field
-            var gameStateField = typeof(StarTrekGame).GetField("_gameState", 
+            var gameStateField = typeof(StarTrekGame).GetField("_gameState",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             gameStateField!.SetValue(game, gameState);
-            
+
             // Act - Use reflection to access private method for testing
-            var checkMethod = typeof(StarTrekGame).GetMethod("CheckForEmergencyConditions", 
+            var checkMethod = typeof(StarTrekGame).GetMethod("CheckForEmergencyConditions",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             bool isStranded = (bool)checkMethod!.Invoke(game, null)!;
-            
+
             // Assert
             Assert.False(isStranded);
             Assert.False(gameState.IsShipStranded);
@@ -150,10 +150,10 @@ namespace SuperStarTrek.Tests.Commands
         {
             // Arrange
             var gameState = new GameState(42);
-            
+
             // Act
             gameState.SetShipStranded();
-            
+
             // Assert
             Assert.True(gameState.IsShipStranded);
             Assert.True(gameState.IsMissionFailed);
