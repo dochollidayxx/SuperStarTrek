@@ -6,12 +6,10 @@ namespace SuperStarTrek.Game
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("=== SUPER STAR TREK ===");
-            Console.WriteLine("C# Port of the Classic Space Strategy Game");
-            Console.WriteLine();
+            Console.Title = "Super Star Trek";
 
             var game = new StarTrekGame();
-            game.Run();
+            game.StartNewGame();
         }
     }
 }

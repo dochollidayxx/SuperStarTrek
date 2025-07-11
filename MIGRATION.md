@@ -45,10 +45,10 @@ This document outlines the plan for migrating the classic BASIC Super Star Trek 
 - [ ] **Boundary Checking**: Galaxy and quadrant limits
 
 ### Navigation System
-- [ ] **Course System**: 9-directional movement implementation
-- [ ] **Warp Speed**: Speed calculation and energy consumption
-- [ ] **Movement Validation**: Collision detection and boundary checking
-- [ ] **Quadrant Transitions**: Moving between quadrants
+- [x] **Course System**: 9-directional movement implementation
+- [x] **Warp Speed**: Speed calculation and energy consumption
+- [x] **Movement Validation**: Collision detection and boundary checking
+- [x] **Quadrant Transitions**: Moving between quadrants
 
 ### Display System
 - [ ] **Short Range Sensors**: Current quadrant display

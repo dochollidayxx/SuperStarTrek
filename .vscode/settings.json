@@ -34,13 +34,19 @@
     // GitHub Copilot Configuration
     "github.copilot.chat.codeGeneration.useInstructionFiles": true,
     "github.copilot.chat.reviewSelection.instructions": [
-        { "file": ".github/instructions/code-review.instructions.md" }
+        {
+            "file": ".github/instructions/code-review.instructions.md"
+        }
     ],
     "github.copilot.chat.commitMessageGeneration.instructions": [
-        { "text": "Use conventional commit format with scope for Super Star Trek project. Include brief description of changes related to game systems (combat, navigation, sensors, etc.)" }
+        {
+            "text": "Use conventional commit format with scope for Super Star Trek project. Include brief description of changes related to game systems (combat, navigation, sensors, etc.)"
+        }
     ],
     "github.copilot.chat.pullRequestDescriptionGeneration.instructions": [
-        { "text": "Always include a list of key changes and reference the migration plan phases if applicable. Mention any BASIC-to-C# conversion patterns used." }
+        {
+            "text": "Always include a list of key changes and reference the migration plan phases if applicable. Mention any BASIC-to-C# conversion patterns used."
+        }
     ],
     "chat.promptFiles": true
 }
