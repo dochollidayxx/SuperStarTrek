@@ -140,5 +140,124 @@ namespace SuperStarTrek.Game.Models
                 return "YELLOW";
             return "GREEN";
         }
+
+        /// <summary>
+        /// Performs automatic repairs during ship movement based on warp factor.
+        /// Implements the repair logic from BASIC lines 2770-3030.
+        /// </summary>
+        /// <param name="warpFactor">The warp factor used for movement</param>
+        /// <param name="random">Random number generator for repair calculations</param>
+        /// <returns>List of repair messages to display to the player</returns>
+        public List<string> PerformAutomaticRepairs(double warpFactor, Random random)
+        {
+            var repairMessages = new List<string>();
+            double repairAmount = warpFactor >= 1.0 ? 1.0 : warpFactor; // D6 in BASIC
+            bool firstRepair = true;
+
+            // Check each system for automatic repair (BASIC lines 2770-2880)
+            foreach (var system in ShipSystemExtensions.GetAllSystems())
+            {
+                double currentDamage = _systemDamage[system];
+                
+                // Skip systems that aren't damaged
+                if (currentDamage >= 0)
+                {
+                    continue;
+                }
+
+                // Apply repair amount
+                double newDamage = currentDamage + repairAmount;
+                
+                // Handle partial repairs (BASIC lines 2790-2800)
+                if (newDamage > -0.1 && newDamage < 0)
+                {
+                    _systemDamage[system] = -0.1; // Keep slightly damaged
+                }
+                else if (newDamage < 0)
+                {
+                    // Still damaged, but improved
+                    _systemDamage[system] = newDamage;
+                }
+                else
+                {
+                    // System fully repaired (newDamage >= 0)
+                    _systemDamage[system] = 0.0;
+                    
+                    // Report repair completion (BASIC lines 2810-2840)
+                    if (firstRepair)
+                    {
+                        repairMessages.Add("DAMAGE CONTROL REPORT:");
+                        firstRepair = false;
+                    }
+                    repairMessages.Add($"        {system.GetDisplayName()} REPAIR COMPLETED.");
+                }
+            }
+
+            // Random system damage or improvement during movement (BASIC lines 2880-3030)
+            if (random.NextDouble() <= 0.2) // 20% chance of random event
+            {
+                var randomSystem = (ShipSystem)random.Next(1, 9); // FNR(1) function
+                
+                if (random.NextDouble() < 0.6) // 60% chance of damage
+                {
+                    // Random damage (BASIC lines 2930-2960)
+                    double damageAmount = random.NextDouble() * 5 + 1; // RND(1)*5+1
+                    _systemDamage[randomSystem] -= damageAmount;
+                    
+                    if (firstRepair)
+                    {
+                        repairMessages.Add("DAMAGE CONTROL REPORT:");
+                    }
+                    repairMessages.Add($"{randomSystem.GetDisplayName()} DAMAGED");
+                }
+                else
+                {
+                    // Random improvement (BASIC lines 3000-3030)
+                    double improvementAmount = random.NextDouble() * 3 + 1; // RND(1)*3+1
+                    _systemDamage[randomSystem] += improvementAmount;
+                    
+                    if (firstRepair)
+                    {
+                        repairMessages.Add("DAMAGE CONTROL REPORT:");
+                    }
+                    repairMessages.Add($"{randomSystem.GetDisplayName()} STATE OF REPAIR IMPROVED");
+                }
+            }
+
+            return repairMessages;
+        }
+
+        /// <summary>
+        /// Applies combat damage to a random ship system.
+        /// Implements the damage logic from BASIC lines 6140-6170.
+        /// </summary>
+        /// <param name="hitStrength">The strength of the hit</param>
+        /// <param name="shieldLevel">Current shield level</param>
+        /// <param name="random">Random number generator</param>
+        /// <returns>Name of the damaged system, or null if no damage occurred</returns>
+        public string? ApplyCombatDamage(int hitStrength, int shieldLevel, Random random)
+        {
+            // Only apply system damage for significant hits (BASIC: H<20THEN6200)
+            if (hitStrength < 20)
+            {
+                return null;
+            }
+
+            // Check if damage should occur (BASIC: RND(1)>.6ORH/S<=.02THEN6200)
+            // Note: The original logic has OR not AND, meaning damage occurs if either condition is false
+            bool skipDamage = random.NextDouble() > 0.6 || (shieldLevel > 0 && (double)hitStrength / shieldLevel <= 0.02);
+            if (skipDamage)
+            {
+                return null;
+            }
+
+            // Select random system and apply damage (BASIC: R1=FNR(1):D(R1)=D(R1)-H/S-.5*RND(1))
+            var randomSystem = (ShipSystem)random.Next(1, 9); // FNR(1) function
+            double damageAmount = (shieldLevel > 0 ? (double)hitStrength / shieldLevel : hitStrength) + 0.5 * random.NextDouble();
+            
+            _systemDamage[randomSystem] -= damageAmount;
+            
+            return randomSystem.GetDisplayName();
+        }
     }
 }
