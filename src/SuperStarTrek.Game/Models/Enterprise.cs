@@ -259,5 +259,88 @@ namespace SuperStarTrek.Game.Models
             
             return randomSystem.GetDisplayName();
         }
+
+        /// <summary>
+        /// Applies damage to the ship, considering shield absorption.
+        /// Shields absorb damage before it affects the hull and systems.
+        /// Based on BASIC combat damage logic from lines 6060-6100.
+        /// </summary>
+        /// <param name="damageAmount">Amount of damage to apply</param>
+        /// <param name="random">Random number generator for damage calculations</param>
+        /// <returns>Damage report messages</returns>
+        public List<string> ApplyShieldedDamage(int damageAmount, Random random)
+        {
+            var messages = new List<string>();
+
+            // If docked, starbase shields protect the Enterprise (BASIC line 6010)
+            if (IsDocked)
+            {
+                messages.Add("STARBASE SHIELDS PROTECT THE ENTERPRISE");
+                return messages;
+            }
+
+            // Apply damage to shields first (BASIC line 6060)
+            Shields -= damageAmount;
+            
+            // Check if shields are destroyed
+            if (Shields <= 0)
+            {
+                // Shields down - ship is destroyed
+                messages.Add("");
+                messages.Add("THE ENTERPRISE HAS BEEN DESTROYED.  THE FEDERATION ");
+                messages.Add("WILL BE CONQUERED");
+                return messages;
+            }
+
+            // Shields absorbed the damage (BASIC line 6100)
+            messages.Add($"      <SHIELDS DOWN TO {Shields} UNITS>");
+
+            // Apply system damage if hit was significant enough (handled by existing ApplyCombatDamage)
+            var damagedSystem = ApplyCombatDamage(damageAmount, Shields, random);
+            if (damagedSystem != null)
+            {
+                messages.Add($"DAMAGE CONTROL REPORTS {damagedSystem} DAMAGED BY THE HIT'");
+            }
+
+            return messages;
+        }
+
+        /// <summary>
+        /// Handles automatic shield lowering when docking at a starbase.
+        /// Based on BASIC line 6620: "SHIELDS DROPPED FOR DOCKING PURPOSES"
+        /// </summary>
+        /// <returns>Message about shield status change</returns>
+        public string DockAtStarbase()
+        {
+            IsDocked = true;
+            
+            // Automatically lower shields when docking (BASIC line 6620)
+            if (Shields > 0)
+            {
+                Shields = 0;
+                return "SHIELDS DROPPED FOR DOCKING PURPOSES";
+            }
+            
+            return "";
+        }
+
+        /// <summary>
+        /// Handles undocking from a starbase
+        /// </summary>
+        public void UndockFromStarbase()
+        {
+            IsDocked = false;
+        }
+
+        /// <summary>
+        /// Checks if shields are dangerously low and should trigger a warning.
+        /// Based on BASIC line 1580 shield warning logic.
+        /// </summary>
+        /// <returns>True if shields are dangerously low</returns>
+        public bool AreShieldsDangerouslyLow()
+        {
+            // This threshold matches the original game's warning system
+            return Shields < 200 && !IsDocked;
+        }
     }
 }

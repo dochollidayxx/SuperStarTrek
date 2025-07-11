@@ -19,8 +19,8 @@ namespace SuperStarTrek.Game.Commands
                 { "PHA", () => new PhaserCommand() },
                 { "TOR", () => new TorpedoCommand() },
                 { "DAM", () => new DamageControlCommand(new Random()) },
+                { "SHE", () => new ShieldCommand() },
                 // Additional commands will be added in future weeks
-                // { "SHE", () => new ShieldCommand() },
                 // { "COM", () => new ComputerCommand() }
             };
         }
