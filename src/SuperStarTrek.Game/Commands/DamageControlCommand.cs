@@ -67,9 +67,20 @@ namespace SuperStarTrek.Game.Commands
                 Console.WriteLine();
                 Console.WriteLine("TECHNICIANS STANDING BY TO EFFECT REPAIRS TO YOUR SHIP;");
                 Console.WriteLine($"ESTIMATED TIME TO REPAIR: {totalDamage:F2} STARDATES");
-                Console.Write("WILL YOU AUTHORIZE THE REPAIR ORDER (Y/N)? ");
 
-                string response = Console.ReadLine()?.Trim().ToUpper() ?? "";
+                string response;
+
+                // Check if repair decision was provided as parameter (for testing)
+                if (parameters.Length > 0 && !string.IsNullOrWhiteSpace(parameters[0]))
+                {
+                    response = parameters[0].Trim().ToUpper();
+                }
+                else
+                {
+                    // Interactive mode - ask user
+                    Console.Write("WILL YOU AUTHORIZE THE REPAIR ORDER (Y/N)? ");
+                    response = Console.ReadLine()?.Trim().ToUpper() ?? "";
+                }
 
                 if (response == "Y")
                 {
