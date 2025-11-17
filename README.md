@@ -1,5 +1,9 @@
 # Super Star Trek (C# Port)
 
+![.NET Tests](https://github.com/dochollidayxx/SuperStarTrek/workflows/.NET%20Tests/badge.svg)
+[![.NET](https://img.shields.io/badge/.NET-9.0-blue.svg)](https://dotnet.microsoft.com/download)
+[![License](https://img.shields.io/badge/license-Public%20Domain-green.svg)](LICENSE)
+
 A C# console application port of the classic Super Star Trek game, originally written in BASIC by Mike Mayfield in 1971.
 
 ## About the Game
@@ -61,6 +65,8 @@ This C# port preserves the gameplay mechanics and feel of the original 1978 Micr
    ```bash
    dotnet test
    ```
+
+For detailed test information, see [TEST-STATUS.md](TEST-STATUS.md).
 
 ### Development with VS Code
 
