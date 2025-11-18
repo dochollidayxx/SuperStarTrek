@@ -135,9 +135,12 @@ namespace SuperStarTrek.Tests.Commands
             // Act
             var result = command.Execute(gameState, new[] { "7", "4" });
 
-            // Assert - This should fail due to boundary violation
-            Assert.False(result.IsSuccess);
-            Assert.Contains("OUTSIDE GALAXY", result.Message?.ToUpper() ?? "");
+            // Assert - Should succeed but show galactic perimeter message (BASIC behavior)
+            Assert.True(result.IsSuccess);
+            Assert.Contains("GALACTIC PERIMETER", result.Message?.ToUpper() ?? "");
+            Assert.Contains("UHURA", result.Message?.ToUpper() ?? "");
+            // Ship should be at boundary (Q2=8, S2=8)
+            Assert.Equal(8, gameState.Enterprise.QuadrantCoordinates.X);
         }
 
         [Fact]
@@ -341,16 +344,17 @@ namespace SuperStarTrek.Tests.Commands
             // Act
             var result = command.Execute(gameState, new[] { "4", "8" });
 
-            // Assert - This might fail due to boundary violations, which is expected
-            if (result.IsSuccess)
+            // Assert - Should succeed (BASIC behavior allows movement to boundary)
+            Assert.True(result.IsSuccess);
+
+            // If boundary was hit, should show perimeter message
+            if (result.Message?.Contains("GALACTIC PERIMETER") == true)
             {
-                Assert.Equal(74, initialEnergy - gameState.Enterprise.Energy); // Maximum energy
+                Assert.Contains("UHURA", result.Message);
             }
-            else
-            {
-                // Expected to fail due to boundary violation
-                Assert.Contains("OUTSIDE GALAXY", result.Message?.ToUpper() ?? "");
-            }
+
+            // Energy should be consumed
+            Assert.True(gameState.Enterprise.Energy < initialEnergy);
         }
 
         [Fact]

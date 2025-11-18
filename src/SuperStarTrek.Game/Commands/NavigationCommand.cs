@@ -128,6 +128,7 @@ namespace SuperStarTrek.Game.Commands
             }
 
             // Apply galaxy boundary limits (original BASIC lines 3620-3750)
+            // X5=0: flag for boundary crossing (BASIC line 3620)
             var boundaryClamped = false;
             if (newQuadrantX < 1)
             {
@@ -154,11 +155,11 @@ namespace SuperStarTrek.Game.Commands
                 newSectorY = 8;
             }
 
+            // BASIC line 3790: IFX5=0THEN3860 (if no boundary, skip messages)
+            // If boundary was hit, flag it for perimeter message (BASIC lines 3800-3840)
             if (boundaryClamped)
             {
-                result.Success = false;
-                result.Message = "NAVIGATION WOULD TAKE SHIP OUTSIDE GALAXY";
-                return result;
+                result.PerimeterMessageNeeded = true;
             }
 
             result.NewQuadrantCoordinates = new Coordinates(newQuadrantX, newQuadrantY);
@@ -312,11 +313,38 @@ namespace SuperStarTrek.Game.Commands
         }
 
         /// <summary>
+        /// Builds the galactic perimeter message (BASIC lines 3800-3840)
+        /// </summary>
+        private string BuildPerimeterMessage(NavigationResult navigation)
+        {
+            var sb = new StringBuilder();
+            // BASIC line 3800
+            sb.AppendLine("LT. UHURA REPORTS MESSAGE FROM STARFLEET COMMAND:");
+            // BASIC line 3810
+            sb.AppendLine("  'PERMISSION TO ATTEMPT CROSSING OF GALACTIC PERIMETER");
+            // BASIC line 3820
+            sb.AppendLine("  IS HEREBY *DENIED*.  SHUT DOWN YOUR ENGINES.'");
+            // BASIC line 3830
+            sb.AppendLine("CHIEF ENGINEER SCOTT REPORTS  'WARP ENGINES SHUT DOWN");
+            // BASIC line 3840
+            sb.Append($"  AT SECTOR {navigation.NewSectorCoordinates.X},{navigation.NewSectorCoordinates.Y}");
+            sb.Append($" OF QUADRANT {navigation.NewQuadrantCoordinates.X},{navigation.NewQuadrantCoordinates.Y}.'");
+            return sb.ToString();
+        }
+
+        /// <summary>
         /// Builds the navigation result message
         /// </summary>
         private string BuildNavigationMessage(NavigationResult navigation, string dockingMessage)
         {
             var sb = new StringBuilder();
+
+            // Add perimeter message if boundary was hit (BASIC lines 3800-3840)
+            if (navigation.PerimeterMessageNeeded)
+            {
+                sb.AppendLine(BuildPerimeterMessage(navigation));
+                sb.AppendLine();
+            }
 
             if (navigation.CollisionOccurred)
             {
@@ -356,5 +384,6 @@ namespace SuperStarTrek.Game.Commands
         public int EnergyConsumed { get; set; }
         public bool QuadrantChanged { get; set; }
         public bool CollisionOccurred { get; set; }
+        public bool PerimeterMessageNeeded { get; set; }
     }
 }
