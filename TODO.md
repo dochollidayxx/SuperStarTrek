@@ -24,7 +24,7 @@ This document provides a comprehensive analysis of the original 1978 Microsoft B
 | Emergency Conditions | 1990-2050 | ✅ Complete | StarTrekGame |
 | Klingon Combat AI | 2590-2700, 6000-6200 | ✅ Complete | Enterprise, Commands |
 | Docking System | 6430-6720 | ✅ Complete | NavigationCommand, Enterprise (verified 2025-11-18) |
-| Victory/Defeat Logic | 6220-6400 | ⚠️ Partial | StarTrekGame (needs verification) |
+| Victory/Defeat Logic | 6220-6400 | ✅ Complete | StarTrekGame, Commands (verified 2025-11-18) |
 | Quadrant Names | 9010-9260 | ❌ **MISSING** | **NOT IMPLEMENTED** |
 | XXX (Quit) | 2260 | ⚠️ Unknown | Needs verification |
 
@@ -396,9 +396,9 @@ return baseNames[q1 - 1] + (regionOnly ? "" : suffixes[suffixIndex]);
 **Bug Fixed**:
 Previously, `NavigationCommand.CheckForDocking()` was manually setting properties without calling `Enterprise.DockAtStarbase()`, which meant the "SHIELDS DROPPED FOR DOCKING PURPOSES" message (BASIC line 6620) was never displayed to the player. This is now fixed.
 
-#### 2. Victory Conditions (Lines 6370-6400)
+#### 2. Victory Conditions (Lines 6370-6400) ✅ **VERIFIED AND FIXED**
 **BASIC Reference**: Lines 6370-6400
-**Current Status**: Unknown
+**Current Status**: ✅ **COMPLETE** - Verified 2025-11-18
 
 **BASIC Logic**:
 ```basic
@@ -407,13 +407,20 @@ Previously, `NavigationCommand.CheckForDocking()` was manually setting propertie
 6400 PRINT"YOUR EFFICIENCY RATING IS";1000*(K7/(T-T0))^2:GOTO6290
 ```
 
-**Verification Needed**:
-- [ ] Check if victory is detected when K9=0 (all Klingons destroyed)
-- [ ] Verify congratulations message is displayed
-- [ ] Confirm efficiency rating calculation: `1000 * (K7 / (T - T0))^2`
-  - K7 = initial Klingon count
-  - T-T0 = stardates elapsed
-- [ ] Test play again prompt after victory
+**Verification Results**:
+- [x] ✅ Victory detected when K9=0 (all Klingons destroyed) - `GameState.IsMissionComplete`
+- [x] ✅ **FIXED**: Congratulations message now matches BASIC exactly (including typos)
+- [x] ✅ Efficiency rating calculation correct: `1000 * (K7 / (T - T0))^2`
+  - K7 = `GameState.InitialKlingonCount`
+  - T-T0 = `CurrentStardate - StartingStardate`
+- [x] ✅ **IMPLEMENTED**: Play again prompt after victory (BASIC lines 6290-6360)
+
+**Changes Made**:
+- Updated `StarTrekGame.DisplayGameOver()` to match BASIC messages exactly (line 299-300)
+- Victory message: "CONGRULATION, CAPTAIN! THEN LAST KLINGON BATTLE CRUISER MENACING THE FDERATION HAS BEEN DESTROYED."
+- Efficiency rating display: "YOUR EFFICIENCY RATING IS [value]"
+- Added play again prompt: "THE FEDERATION IS IN NEED OF A NEW STARSHIP COMMANDER..."
+- Created comprehensive test suite in `VictoryConditionTests.cs` (8 tests)
 
 **Efficiency Rating Formula**:
 - Higher score = faster completion
@@ -421,12 +428,14 @@ Previously, `NavigationCommand.CheckForDocking()` was manually setting propertie
 - Example: 10 Klingons in 10 stardates = 1000 * (10/10)^2 = 1000
 - Example: 10 Klingons in 5 stardates = 1000 * (10/5)^2 = 4000
 
-#### 3. Defeat Conditions (Lines 6220-6290)
-**BASIC Reference**: Lines 6220-6290
-**Current Status**: Unknown
+#### 3. Defeat Conditions (Lines 6220-6290) ✅ **VERIFIED AND FIXED**
+**BASIC Reference**: Lines 6220-6290, Line 6090
+**Current Status**: ✅ **COMPLETE** - Verified and Fixed 2025-11-18
 
 **BASIC Logic**:
 ```basic
+6060 S=S-H  ' Subtract all damage from shields
+6090 IF S<=0 THEN 6240  ' Ship destroyed if shields <= 0
 6220 PRINT"IT IS STARDATE";T:GOTO 6270  ' Time up or fatal error
 6240 PRINT"THE ENTERPRISE HAS BEEN DESTROYED.  THEN FEDERATION ";
 6250 PRINT"WILL BE CONQUERED":GOTO 6220  ' Ship destroyed
@@ -435,13 +444,34 @@ Previously, `NavigationCommand.CheckForDocking()` was manually setting propertie
 6290 PRINT:PRINT:IFB9=0THEN6360  ' Check for play again prompt
 ```
 
-**Verification Needed**:
-- [ ] Ship destruction detection (shields <= 0 during combat)
-- [ ] Time limit detection (T > T0 + T9)
-- [ ] Fatal error condition (lines 2020-2050) - Completed in Phase 4
-- [ ] Proper defeat message display
-- [ ] Display remaining Klingon count
-- [ ] Play again prompt
+**Verification Results**:
+- [x] ✅ **CRITICAL FIX**: Ship destruction now matches BASIC (shields <= 0 destroys ship)
+- [x] ✅ Time limit detection works correctly (T > T0 + T9) - `GameState.IsMissionFailed`
+- [x] ✅ Fatal error condition (lines 2020-2050) - Already completed in Phase 4
+- [x] ✅ **FIXED**: Defeat messages now match BASIC format exactly
+- [x] ✅ Display remaining Klingon count in defeat message
+- [x] ✅ **IMPLEMENTED**: Play again prompt after defeat (if starbases remain)
+
+**Critical Issue Found and Fixed**:
+The C# implementation had incorrect defeat logic that did NOT match the original BASIC:
+- **Wrong (old C#)**: When shields ran out, overflow damage went to energy, creating "hull points"
+- **Correct (BASIC)**: Ship is destroyed immediately when shields <= 0, no overflow damage
+- **Fix Applied**: Updated `PhaserCommand.ExecuteKlingonCounterAttack()` and `TorpedoCommand.ExecuteKlingonCounterAttack()` to match BASIC line 6090 exactly
+
+**Changes Made**:
+1. **PhaserCommand.cs (lines 188-223)**:
+   - All damage goes to shields (S=S-H)
+   - If shields <= 0, set energy to 0 and display destruction message
+   - No "hull damage" or energy overflow
+2. **TorpedoCommand.cs (lines 267-302)**:
+   - Same fix as PhaserCommand
+3. **StarTrekGame.cs (lines 304-315)**:
+   - Updated defeat messages to match BASIC lines 6220, 6270-6280
+   - Shows stardate, remaining Klingon count
+   - Play again prompt (lines 320-334)
+4. **Created comprehensive test suites**:
+   - `DefeatConditionTests.cs` (14 tests)
+   - `KlingonCounterAttackTests.cs` (8 tests)
 
 #### 4. Exit Command (XXX)
 **BASIC Reference**: Line 2260 (in help text)
