@@ -27,7 +27,7 @@ namespace SuperStarTrek.Tests.Commands
             if (quadrant.KlingonShips.Count == 0)
             {
                 var klingon = new KlingonShip(new Coordinates(3, 3), 500);
-                quadrant.AddKlingonShip(klingon);
+                quadrant.PlaceKlingon(klingon);
             }
             else
             {
@@ -69,7 +69,7 @@ namespace SuperStarTrek.Tests.Commands
             if (quadrant.KlingonShips.Count == 0)
             {
                 var klingon = new KlingonShip(new Coordinates(3, 3), 500);
-                quadrant.AddKlingonShip(klingon);
+                quadrant.PlaceKlingon(klingon);
             }
             else
             {
@@ -109,7 +109,7 @@ namespace SuperStarTrek.Tests.Commands
             if (quadrant.KlingonShips.Count == 0)
             {
                 var klingon = new KlingonShip(new Coordinates(5, 5), 100);
-                quadrant.AddKlingonShip(klingon);
+                quadrant.PlaceKlingon(klingon);
             }
             else
             {
@@ -195,7 +195,7 @@ namespace SuperStarTrek.Tests.Commands
             if (quadrant.KlingonShips.Count == 0)
             {
                 var klingon = new KlingonShip(new Coordinates(5, 5), 200);
-                quadrant.AddKlingonShip(klingon);
+                quadrant.PlaceKlingon(klingon);
             }
 
             var initialShields = enterprise.Shields;
@@ -230,7 +230,7 @@ namespace SuperStarTrek.Tests.Commands
             if (quadrant.KlingonShips.Count == 0)
             {
                 var klingon = new KlingonShip(new Coordinates(5, 5), 200);
-                quadrant.AddKlingonShip(klingon);
+                quadrant.PlaceKlingon(klingon);
             }
 
             enterprise.SectorCoordinates = new Coordinates(3, 3);
