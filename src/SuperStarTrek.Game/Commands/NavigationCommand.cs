@@ -57,10 +57,13 @@ namespace SuperStarTrek.Game.Commands
             // Execute the movement
             ExecuteMovement(gameState, navigation);
 
+            // Check for docking and get any docking message (BASIC lines 6430-6620)
+            var dockingMessage = CheckForDocking(gameState);
+
             // Calculate time consumed (original BASIC: T = T + 1 for movement)
             var timeConsumed = 1.0;
 
-            var message = BuildNavigationMessage(navigation);
+            var message = BuildNavigationMessage(navigation, dockingMessage);
             return CommandResult.Success(message, timeConsumed);
         }
 
@@ -230,35 +233,50 @@ namespace SuperStarTrek.Game.Commands
         }
 
         /// <summary>
-        /// Checks if Enterprise is adjacent to a starbase for docking
+        /// Checks if Enterprise is adjacent to a starbase for docking.
+        /// Implements BASIC lines 6430-6620 docking logic.
         /// </summary>
-        private void CheckForDocking(GameState gameState)
+        /// <returns>Docking message if docking occurred, empty string otherwise</returns>
+        private string CheckForDocking(GameState gameState)
         {
             var enterprise = gameState.Enterprise;
             var quadrant = gameState.CurrentQuadrant;
 
+            // Check if starbase exists in quadrant
             if (!quadrant.HasStarbase)
             {
-                enterprise.IsDocked = false;
-                return;
+                enterprise.UndockFromStarbase();
+                return string.Empty;
             }
 
             var starbaseCoords = quadrant.StarbaseCoordinates!.Value;
             var enterpriseCoords = enterprise.SectorCoordinates;
 
+            // BASIC lines 6430-6540: Loop through adjacent sectors (S1-1 to S1+1, S2-1 to S2+1)
             // Check if adjacent (including diagonally)
             var deltaX = Math.Abs(starbaseCoords.X - enterpriseCoords.X);
             var deltaY = Math.Abs(starbaseCoords.Y - enterpriseCoords.Y);
 
-            enterprise.IsDocked = deltaX <= 1 && deltaY <= 1 && (deltaX > 0 || deltaY > 0);
+            bool isAdjacent = deltaX <= 1 && deltaY <= 1 && (deltaX > 0 || deltaY > 0);
 
-            // If docked, replenish supplies
-            if (enterprise.IsDocked)
+            if (isAdjacent && !enterprise.IsDocked)
             {
-                enterprise.Energy = enterprise.MaxEnergy;
-                enterprise.PhotonTorpedoes = enterprise.MaxPhotonTorpedoes;
-                enterprise.Shields = 0; // Shields must be down when docked
+                // BASIC line 6580: D0=1:C$="DOCKED":E=E0:P=P0
+                // Dock and get message (includes BASIC line 6620 message)
+                var dockingMessage = enterprise.DockAtStarbase();
+
+                // BASIC line 6580: E=E0:P=P0 - Refill energy and torpedoes
+                enterprise.Resupply();
+
+                return dockingMessage;
             }
+            else if (!isAdjacent && enterprise.IsDocked)
+            {
+                // Moved away from starbase - undock
+                enterprise.UndockFromStarbase();
+            }
+
+            return string.Empty;
         }
 
         /// <summary>
@@ -296,7 +314,7 @@ namespace SuperStarTrek.Game.Commands
         /// <summary>
         /// Builds the navigation result message
         /// </summary>
-        private string BuildNavigationMessage(NavigationResult navigation)
+        private string BuildNavigationMessage(NavigationResult navigation, string dockingMessage)
         {
             var sb = new StringBuilder();
 
@@ -313,9 +331,15 @@ namespace SuperStarTrek.Game.Commands
 
             sb.AppendLine($"NAVIGATION COMPLETE");
             sb.AppendLine($"NEW POSITION: QUADRANT {navigation.NewQuadrantCoordinates.X},{navigation.NewQuadrantCoordinates.Y} SECTOR {navigation.NewSectorCoordinates.X},{navigation.NewSectorCoordinates.Y}");
-            sb.Append($"ENERGY CONSUMED: {navigation.EnergyConsumed} UNITS");
+            sb.AppendLine($"ENERGY CONSUMED: {navigation.EnergyConsumed} UNITS");
 
-            return sb.ToString();
+            // Add docking message if present (BASIC line 6620)
+            if (!string.IsNullOrEmpty(dockingMessage))
+            {
+                sb.Append(dockingMessage);
+            }
+
+            return sb.ToString().TrimEnd();
         }
     }
 
