@@ -15,13 +15,17 @@ namespace SuperStarTrek.Tests
             // Arrange
             var gameState = new GameState(42);
 
-            // Destroy all Klingons in galaxy
-            foreach (var quadrantCoord in gameState.Galaxy.GetAllQuadrantCoordinates())
+            // Destroy all Klingons in galaxy by setting their shields to 0
+            for (int x = 1; x <= 8; x++)
             {
-                var quadrant = gameState.Galaxy.GetQuadrant(quadrantCoord);
-                foreach (var klingon in quadrant.KlingonShips)
+                for (int y = 1; y <= 8; y++)
                 {
-                    klingon.IsDestroyed = true;
+                    var quadrantCoord = new Coordinates(x, y);
+                    var quadrant = gameState.Galaxy.GetQuadrant(quadrantCoord);
+                    foreach (var klingon in quadrant.KlingonShips)
+                    {
+                        klingon.ShieldLevel = 0; // This makes IsDestroyed return true
+                    }
                 }
             }
 
@@ -46,13 +50,17 @@ namespace SuperStarTrek.Tests
             // Arrange
             var gameState = new GameState(42);
 
-            // Destroy all Klingons
-            foreach (var quadrantCoord in gameState.Galaxy.GetAllQuadrantCoordinates())
+            // Destroy all Klingons by setting their shields to 0
+            for (int x = 1; x <= 8; x++)
             {
-                var quadrant = gameState.Galaxy.GetQuadrant(quadrantCoord);
-                foreach (var klingon in quadrant.KlingonShips)
+                for (int y = 1; y <= 8; y++)
                 {
-                    klingon.IsDestroyed = true;
+                    var quadrantCoord = new Coordinates(x, y);
+                    var quadrant = gameState.Galaxy.GetQuadrant(quadrantCoord);
+                    foreach (var klingon in quadrant.KlingonShips)
+                    {
+                        klingon.ShieldLevel = 0;
+                    }
                 }
             }
 
@@ -68,13 +76,17 @@ namespace SuperStarTrek.Tests
             var initialKlingonCount = gameState.InitialKlingonCount;
             var startStardate = gameState.StartingStardate;
 
-            // Destroy all Klingons
-            foreach (var quadrantCoord in gameState.Galaxy.GetAllQuadrantCoordinates())
+            // Destroy all Klingons by setting their shields to 0
+            for (int x = 1; x <= 8; x++)
             {
-                var quadrant = gameState.Galaxy.GetQuadrant(quadrantCoord);
-                foreach (var klingon in quadrant.KlingonShips)
+                for (int y = 1; y <= 8; y++)
                 {
-                    klingon.IsDestroyed = true;
+                    var quadrantCoord = new Coordinates(x, y);
+                    var quadrant = gameState.Galaxy.GetQuadrant(quadrantCoord);
+                    foreach (var klingon in quadrant.KlingonShips)
+                    {
+                        klingon.ShieldLevel = 0;
+                    }
                 }
             }
 
@@ -93,27 +105,18 @@ namespace SuperStarTrek.Tests
         [Fact]
         public void CalculateEfficiencyRating_WithFastCompletion_GivesHigherScore()
         {
-            // Arrange
-            var gameState = new GameState(42);
-
-            // Destroy all Klingons
-            foreach (var quadrantCoord in gameState.Galaxy.GetAllQuadrantCoordinates())
-            {
-                var quadrant = gameState.Galaxy.GetQuadrant(quadrantCoord);
-                foreach (var klingon in quadrant.KlingonShips)
-                {
-                    klingon.IsDestroyed = true;
-                }
-            }
-
             // Scenario 1: Complete in 5 stardates
             var gameState1 = new GameState(42);
-            foreach (var quadrantCoord in gameState1.Galaxy.GetAllQuadrantCoordinates())
+            for (int x = 1; x <= 8; x++)
             {
-                var quadrant = gameState1.Galaxy.GetQuadrant(quadrantCoord);
-                foreach (var klingon in quadrant.KlingonShips)
+                for (int y = 1; y <= 8; y++)
                 {
-                    klingon.IsDestroyed = true;
+                    var quadrantCoord = new Coordinates(x, y);
+                    var quadrant = gameState1.Galaxy.GetQuadrant(quadrantCoord);
+                    foreach (var klingon in quadrant.KlingonShips)
+                    {
+                        klingon.ShieldLevel = 0;
+                    }
                 }
             }
             gameState1.AdvanceTime(5);
@@ -121,12 +124,16 @@ namespace SuperStarTrek.Tests
 
             // Scenario 2: Complete in 10 stardates (slower)
             var gameState2 = new GameState(42);
-            foreach (var quadrantCoord in gameState2.Galaxy.GetAllQuadrantCoordinates())
+            for (int x = 1; x <= 8; x++)
             {
-                var quadrant = gameState2.Galaxy.GetQuadrant(quadrantCoord);
-                foreach (var klingon in quadrant.KlingonShips)
+                for (int y = 1; y <= 8; y++)
                 {
-                    klingon.IsDestroyed = true;
+                    var quadrantCoord = new Coordinates(x, y);
+                    var quadrant = gameState2.Galaxy.GetQuadrant(quadrantCoord);
+                    foreach (var klingon in quadrant.KlingonShips)
+                    {
+                        klingon.ShieldLevel = 0;
+                    }
                 }
             }
             gameState2.AdvanceTime(10);
@@ -158,13 +165,17 @@ namespace SuperStarTrek.Tests
             // Arrange
             var gameState = new GameState(42);
 
-            // Destroy all Klingons
-            foreach (var quadrantCoord in gameState.Galaxy.GetAllQuadrantCoordinates())
+            // Destroy all Klingons by setting their shields to 0
+            for (int x = 1; x <= 8; x++)
             {
-                var quadrant = gameState.Galaxy.GetQuadrant(quadrantCoord);
-                foreach (var klingon in quadrant.KlingonShips)
+                for (int y = 1; y <= 8; y++)
                 {
-                    klingon.IsDestroyed = true;
+                    var quadrantCoord = new Coordinates(x, y);
+                    var quadrant = gameState.Galaxy.GetQuadrant(quadrantCoord);
+                    foreach (var klingon in quadrant.KlingonShips)
+                    {
+                        klingon.ShieldLevel = 0;
+                    }
                 }
             }
 
@@ -181,17 +192,20 @@ namespace SuperStarTrek.Tests
             // Arrange
             var gameState = new GameState(42);
 
-            // Assume we had 10 Klingons initially (may vary with seed)
-            // For this test, we'll use the actual initial count
+            // Use the actual initial count for this seed
             var initialKlingons = gameState.InitialKlingonCount;
 
-            // Destroy all Klingons
-            foreach (var quadrantCoord in gameState.Galaxy.GetAllQuadrantCoordinates())
+            // Destroy all Klingons by setting their shields to 0
+            for (int x = 1; x <= 8; x++)
             {
-                var quadrant = gameState.Galaxy.GetQuadrant(quadrantCoord);
-                foreach (var klingon in quadrant.KlingonShips)
+                for (int y = 1; y <= 8; y++)
                 {
-                    klingon.IsDestroyed = true;
+                    var quadrantCoord = new Coordinates(x, y);
+                    var quadrant = gameState.Galaxy.GetQuadrant(quadrantCoord);
+                    foreach (var klingon in quadrant.KlingonShips)
+                    {
+                        klingon.ShieldLevel = 0;
+                    }
                 }
             }
 
