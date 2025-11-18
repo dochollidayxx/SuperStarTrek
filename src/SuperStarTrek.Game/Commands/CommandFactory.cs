@@ -68,7 +68,7 @@ namespace SuperStarTrek.Game.Commands
                     helpText += $"{command.GetHelpText()}\n";
                 }
             }
-            helpText += "XXX - EMERGENCY EXIT\n";
+            helpText += "XXX - TO RESIGN YOUR COMMAND\n";
             helpText += "HELP or ? - THIS COMMAND LIST";
             return helpText;
         }

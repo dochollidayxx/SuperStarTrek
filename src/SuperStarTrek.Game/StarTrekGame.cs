@@ -216,8 +216,9 @@ namespace SuperStarTrek.Game
             switch (commandName)
             {
                 case "XXX":
-                    Console.WriteLine("EMERGENCY EXIT");
-                    _gameInProgress = false;
+                    // Original BASIC line 2140 -> 6270: Jump to end game sequence
+                    Console.WriteLine();
+                    DisplayGameOver();
                     return;
 
                 case "HELP":
