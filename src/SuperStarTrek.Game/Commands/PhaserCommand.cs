@@ -168,6 +168,13 @@ namespace SuperStarTrek.Game.Commands
                 return string.Empty;
             }
 
+            // Original BASIC line 6010: IF D0<>0 THEN PRINT "STARBASE SHIELDS..."
+            if (enterprise.IsDocked)
+            {
+                result.AppendLine("\nSTARBASE SHIELDS PROTECT THE ENTERPRISE");
+                return result.ToString();
+            }
+
             result.AppendLine("\nKLINGON ATTACK:");
 
             var totalDamage = 0;
