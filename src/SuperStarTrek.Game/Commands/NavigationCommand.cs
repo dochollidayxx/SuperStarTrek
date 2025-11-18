@@ -38,6 +38,12 @@ namespace SuperStarTrek.Game.Commands
                 return CommandResult.Failure("WARP FACTOR MUST BE POSITIVE");
             }
 
+            // Maximum warp factor is 8 (original BASIC behavior)
+            if (warpFactor > 8.0)
+            {
+                return CommandResult.Failure("MAXIMUM WARP FACTOR IS 8");
+            }
+
             // Check energy requirements (original BASIC: E = E - N - 10)
             var distance = Math.Round(warpFactor * 8);
             var energyRequired = (int)distance + 10;
