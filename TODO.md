@@ -23,7 +23,7 @@ This document provides a comprehensive analysis of the original 1978 Microsoft B
 | Library Computer (COM) | 7290-9260 | ❌ **MISSING** | **NOT IMPLEMENTED** |
 | Emergency Conditions | 1990-2050 | ✅ Complete | StarTrekGame |
 | Klingon Combat AI | 2590-2700, 6000-6200 | ✅ Complete | Enterprise, Commands |
-| Docking System | 6430-6720 | ⚠️ Partial | Enterprise (needs verification) |
+| Docking System | 6430-6720 | ✅ Complete | NavigationCommand, Enterprise (verified 2025-11-18) |
 | Victory/Defeat Logic | 6220-6400 | ⚠️ Partial | StarTrekGame (needs verification) |
 | Quadrant Names | 9010-9260 | ❌ **MISSING** | **NOT IMPLEMENTED** |
 | XXX (Quit) | 2260 | ⚠️ Unknown | Needs verification |
@@ -352,9 +352,9 @@ return baseNames[q1 - 1] + (regionOnly ? "" : suffixes[suffixIndex]);
 
 ### ⚠️ NEEDS VERIFICATION - Potentially Incomplete
 
-#### 1. Docking System (Lines 6430-6720)
+#### 1. Docking System (Lines 6430-6720) ✅ **VERIFIED AND FIXED**
 **BASIC Reference**: Lines 6430-6720 (within SRS subroutine)
-**Current Status**: Partially implemented in `Enterprise.cs`
+**Current Status**: ✅ **COMPLETE** - Verified 2025-11-18
 
 **BASIC Logic**:
 ```basic
@@ -364,18 +364,37 @@ return baseNames[q1 - 1] + (regionOnly ? "" : suffixes[suffixIndex]);
 6620 PRINT"SHIELDS DROPPED FOR DOCKING PURPOSES":S=0  ' Drop shields
 ```
 
-**Verification Needed**:
-- [ ] Check if `Enterprise.cs` properly detects adjacent starbases
-- [ ] Verify energy refill to maximum (E=E0=3000)
-- [ ] Verify torpedo refill to maximum (P=P0=10)
-- [ ] Confirm shields automatically drop to 0 when docked
-- [ ] Test docking message display
-- [ ] Verify condition display shows "DOCKED" status
+**Verification Results**:
+- [x] ✅ `NavigationCommand.cs` properly detects adjacent starbases (line 257-260)
+- [x] ✅ Energy refilled to maximum (E=E0=3000) via `Enterprise.Resupply()` (line 269)
+- [x] ✅ Torpedoes refilled to maximum (P=P0=10) via `Enterprise.Resupply()` (line 269)
+- [x] ✅ Shields automatically drop to 0 when docked via `Enterprise.DockAtStarbase()` (line 266)
+- [x] ✅ **FIXED**: Docking message now displays correctly (line 266-271)
+- [x] ✅ Condition display shows "DOCKED" status (`ShortRangeSensorsCommand.cs:95-97`)
+- [x] ✅ Klingons don't attack while docked (`Enterprise.ApplyShieldedDamage()` checks `IsDocked`)
 
-**Test Required**:
-- Create test scenario with Enterprise adjacent to starbase
-- Verify all docking effects occur automatically
-- Test that Klingons don't attack while docked (Line 6010)
+**Changes Made**:
+- Modified `NavigationCommand.cs:CheckForDocking()` to use `Enterprise.DockAtStarbase()` method
+- Returns docking message which is now displayed to player (BASIC line 6620)
+- Added comprehensive test suite in `DockingSystemVerificationTests.cs` with 9 test cases:
+  - Adjacency detection (10 scenarios)
+  - Energy/torpedo refill verification
+  - Shield drop message display
+  - Starbase protection from Klingon attacks
+  - Docked condition display priority
+  - Undocking when moving away
+  - Edge sector handling
+  - Damage control repair availability
+
+**Implementation Details**:
+- `NavigationCommand.cs:240-280` - CheckForDocking method (returns message)
+- `NavigationCommand.cs:61` - Calls CheckForDocking after movement
+- `NavigationCommand.cs:317-343` - BuildNavigationMessage includes docking message
+- `Enterprise.cs:313-325` - DockAtStarbase method (returns message)
+- `Enterprise.cs:123-128` - Resupply method (refills energy/torpedoes)
+
+**Bug Fixed**:
+Previously, `NavigationCommand.CheckForDocking()` was manually setting properties without calling `Enterprise.DockAtStarbase()`, which meant the "SHIELDS DROPPED FOR DOCKING PURPOSES" message (BASIC line 6620) was never displayed to the player. This is now fixed.
 
 #### 2. Victory Conditions (Lines 6370-6400)
 **BASIC Reference**: Lines 6370-6400
