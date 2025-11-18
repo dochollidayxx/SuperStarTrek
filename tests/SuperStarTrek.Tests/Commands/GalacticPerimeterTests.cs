@@ -31,13 +31,14 @@ namespace SuperStarTrek.Tests.Commands
         [Fact]
         public void NavigationBeyondNorthBoundary_ShowsPerimeterMessage()
         {
-            // Arrange - Start at quadrant (1,4) near north edge
-            var gameState = CreateTestGameState(1, 4, 4, 4, 3000);
+            // Arrange - Start at quadrant (4,7) near north edge
+            // Absolute Y = 8*7 + 8 = 64
+            var gameState = CreateTestGameState(4, 7, 4, 8, 3000);
             var command = new NavigationCommand();
 
             // Act - Attempt to navigate north beyond galaxy boundary
-            // Course 1 = North (deltaY = +1), Warp 2 would move 16 sectors north
-            // From Q1=1, this would exceed the boundary
+            // Course 1 = North (deltaY = +1), Warp 2 moves 16 sectors north
+            // finalAbsoluteY = 64 + 16 = 80, newQuadrantY = 10 (exceeds boundary)
             var result = command.Execute(gameState, new[] { "1", "2" });
 
             // Assert - According to BASIC, this should:
@@ -57,20 +58,22 @@ namespace SuperStarTrek.Tests.Commands
             Assert.Contains("SCOTT", result.Message ?? "");
             Assert.Contains("WARP ENGINES SHUT DOWN", result.Message ?? "");
 
-            // Verify ship is at boundary position
-            Assert.Equal(1, gameState.Enterprise.QuadrantCoordinates.Y);
-            Assert.Equal(1, gameState.Enterprise.SectorCoordinates.Y);
+            // Verify ship is at boundary position (clamped to Q2=8, S2=8)
+            Assert.Equal(8, gameState.Enterprise.QuadrantCoordinates.Y);
+            Assert.Equal(8, gameState.Enterprise.SectorCoordinates.Y);
         }
 
         [Fact]
         public void NavigationBeyondSouthBoundary_ShowsPerimeterMessage()
         {
-            // Arrange - Start at quadrant (8,4) near south edge
-            var gameState = CreateTestGameState(8, 4, 4, 4, 3000);
+            // Arrange - Start at quadrant (4,2) near south edge
+            // Absolute Y = 8*2 + 1 = 17
+            var gameState = CreateTestGameState(4, 2, 4, 1, 3000);
             var command = new NavigationCommand();
 
             // Act - Attempt to navigate south beyond galaxy boundary
-            // Course 5 = South (deltaY = -1), Warp 2 would move 16 sectors south
+            // Course 5 = South (deltaY = -1), Warp 2 moves 16 sectors south
+            // finalAbsoluteY = 17 - 16 = 1, newQuadrantY = 0 (below boundary)
             var result = command.Execute(gameState, new[] { "5", "2" });
 
             // Assert
@@ -80,20 +83,22 @@ namespace SuperStarTrek.Tests.Commands
             Assert.Contains("*DENIED*", result.Message ?? "");
             Assert.Contains("SCOTT", result.Message ?? "");
 
-            // Verify ship is at boundary position (Q1=8, S1=8)
-            Assert.Equal(8, gameState.Enterprise.QuadrantCoordinates.Y);
-            Assert.Equal(8, gameState.Enterprise.SectorCoordinates.Y);
+            // Verify ship is at boundary position (clamped to Q2=1, S2=1)
+            Assert.Equal(1, gameState.Enterprise.QuadrantCoordinates.Y);
+            Assert.Equal(1, gameState.Enterprise.SectorCoordinates.Y);
         }
 
         [Fact]
         public void NavigationBeyondEastBoundary_ShowsPerimeterMessage()
         {
-            // Arrange - Start at quadrant (4,8) near east edge
-            var gameState = CreateTestGameState(4, 8, 4, 4, 3000);
+            // Arrange - Start at quadrant (2,4) near east edge (Q1 approaching 1)
+            // Absolute X = 8*2 + 1 = 17
+            var gameState = CreateTestGameState(2, 4, 1, 4, 3000);
             var command = new NavigationCommand();
 
             // Act - Attempt to navigate east beyond galaxy boundary
-            // Course 3 = East (deltaX = -1), Warp 2 would move 16 sectors east
+            // Course 3 = East (deltaX = -1), Warp 2 moves 16 sectors
+            // finalAbsoluteX = 17 - 16 = 1, newQuadrantX = 0 (below boundary)
             var result = command.Execute(gameState, new[] { "3", "2" });
 
             // Assert
@@ -103,20 +108,22 @@ namespace SuperStarTrek.Tests.Commands
             Assert.Contains("*DENIED*", result.Message ?? "");
             Assert.Contains("SCOTT", result.Message ?? "");
 
-            // Verify ship is at boundary position
-            Assert.Equal(8, gameState.Enterprise.QuadrantCoordinates.X);
-            Assert.Equal(8, gameState.Enterprise.SectorCoordinates.X);
+            // Verify ship is at boundary position (clamped to Q1=1, S1=1)
+            Assert.Equal(1, gameState.Enterprise.QuadrantCoordinates.X);
+            Assert.Equal(1, gameState.Enterprise.SectorCoordinates.X);
         }
 
         [Fact]
         public void NavigationBeyondWestBoundary_ShowsPerimeterMessage()
         {
-            // Arrange - Start at quadrant (4,1) near west edge
-            var gameState = CreateTestGameState(4, 1, 4, 4, 3000);
+            // Arrange - Start at quadrant (7,4) near west edge (Q1 approaching 8)
+            // Absolute X = 8*7 + 8 = 64
+            var gameState = CreateTestGameState(7, 4, 8, 4, 3000);
             var command = new NavigationCommand();
 
             // Act - Attempt to navigate west beyond galaxy boundary
-            // Course 7 = West (deltaX = 1), Warp 2 would move 16 sectors west
+            // Course 7 = West (deltaX = 1), Warp 2 moves 16 sectors
+            // finalAbsoluteX = 64 + 16 = 80, newQuadrantX = 10 (exceeds boundary)
             var result = command.Execute(gameState, new[] { "7", "2" });
 
             // Assert
@@ -126,19 +133,19 @@ namespace SuperStarTrek.Tests.Commands
             Assert.Contains("*DENIED*", result.Message ?? "");
             Assert.Contains("SCOTT", result.Message ?? "");
 
-            // Verify ship is at boundary position (Q2=1, S2=1)
-            Assert.Equal(1, gameState.Enterprise.QuadrantCoordinates.X);
-            Assert.Equal(1, gameState.Enterprise.SectorCoordinates.X);
+            // Verify ship is at boundary position (clamped to Q1=8, S1=8)
+            Assert.Equal(8, gameState.Enterprise.QuadrantCoordinates.X);
+            Assert.Equal(8, gameState.Enterprise.SectorCoordinates.X);
         }
 
         [Fact]
         public void NavigationToBoundary_ReportsCorrectPosition()
         {
-            // Arrange
-            var gameState = CreateTestGameState(1, 4, 4, 4, 3000);
+            // Arrange - Position to actually hit boundary
+            var gameState = CreateTestGameState(4, 7, 4, 8, 3000);
             var command = new NavigationCommand();
 
-            // Act - Navigate to boundary
+            // Act - Navigate to boundary (north)
             var result = command.Execute(gameState, new[] { "1", "2" });
 
             // Assert - Message should include final position
@@ -151,8 +158,8 @@ namespace SuperStarTrek.Tests.Commands
         [Fact]
         public void NavigationToBoundary_ConsumesTimeAndEnergy()
         {
-            // Arrange
-            var gameState = CreateTestGameState(1, 4, 4, 4, 3000);
+            // Arrange - Position to actually hit boundary
+            var gameState = CreateTestGameState(4, 7, 4, 8, 3000);
             var initialEnergy = gameState.Enterprise.Energy;
             var command = new NavigationCommand();
 
@@ -186,30 +193,13 @@ namespace SuperStarTrek.Tests.Commands
         public void NavigationToCorner_NorthWest_ShowsPerimeterMessage()
         {
             // Arrange - Start near northwest corner
-            var gameState = CreateTestGameState(2, 2, 4, 4, 3000);
-            var command = new NavigationCommand();
-
-            // Act - Navigate northwest (course 8) beyond boundary
-            var result = command.Execute(gameState, new[] { "8", "3" });
-
-            // Assert - Should hit boundary and show perimeter message
-            Assert.True(result.IsSuccess, "Movement to boundary should succeed");
-            Assert.Contains("GALACTIC PERIMETER", result.Message ?? "");
-
-            // Should be at corner (1,1)
-            Assert.Equal(1, gameState.Enterprise.QuadrantCoordinates.Y);
-            Assert.Equal(1, gameState.Enterprise.QuadrantCoordinates.X);
-        }
-
-        [Fact]
-        public void NavigationToCorner_SouthEast_ShowsPerimeterMessage()
-        {
-            // Arrange - Start near southeast corner
+            // Course 8 = NW (deltaX=1, deltaY=1), so we need X and Y to exceed
             var gameState = CreateTestGameState(7, 7, 4, 4, 3000);
             var command = new NavigationCommand();
 
-            // Act - Navigate southeast (course 4) beyond boundary
-            var result = command.Execute(gameState, new[] { "4", "3" });
+            // Act - Navigate northwest (course 8) beyond boundary
+            // Warp 2 = 16 sectors, will push both X and Y past boundary
+            var result = command.Execute(gameState, new[] { "8", "2" });
 
             // Assert - Should hit boundary and show perimeter message
             Assert.True(result.IsSuccess, "Movement to boundary should succeed");
@@ -221,13 +211,34 @@ namespace SuperStarTrek.Tests.Commands
         }
 
         [Fact]
-        public void PerimeterMessage_MatchesBASICFormat()
+        public void NavigationToCorner_SouthEast_ShowsPerimeterMessage()
         {
-            // Arrange
-            var gameState = CreateTestGameState(1, 4, 4, 4, 3000);
+            // Arrange - Start near southeast corner
+            // Course 4 = SE (deltaX=-1, deltaY=-1), so need both to go below 1
+            var gameState = CreateTestGameState(2, 2, 4, 4, 3000);
             var command = new NavigationCommand();
 
-            // Act
+            // Act - Navigate southeast (course 4) beyond boundary
+            // Warp 2 = 16 sectors, will push both X and Y below boundary
+            var result = command.Execute(gameState, new[] { "4", "2" });
+
+            // Assert - Should hit boundary and show perimeter message
+            Assert.True(result.IsSuccess, "Movement to boundary should succeed");
+            Assert.Contains("GALACTIC PERIMETER", result.Message ?? "");
+
+            // Should be at corner (1,1)
+            Assert.Equal(1, gameState.Enterprise.QuadrantCoordinates.Y);
+            Assert.Equal(1, gameState.Enterprise.QuadrantCoordinates.X);
+        }
+
+        [Fact]
+        public void PerimeterMessage_MatchesBASICFormat()
+        {
+            // Arrange - Position to actually hit boundary
+            var gameState = CreateTestGameState(4, 7, 4, 8, 3000);
+            var command = new NavigationCommand();
+
+            // Act - Navigate north to boundary
             var result = command.Execute(gameState, new[] { "1", "2" });
 
             // Assert - Verify exact BASIC message format
