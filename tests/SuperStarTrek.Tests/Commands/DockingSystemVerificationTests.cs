@@ -39,11 +39,8 @@ namespace SuperStarTrek.Tests.Commands
             // Manually set up the quadrant for testing
             gameState.Enterprise.SectorCoordinates = new Coordinates(enterpriseX, enterpriseY);
 
-            // Set starbase location
-            typeof(Quadrant).GetProperty("StarbaseCoordinates")!
-                .SetValue(quadrant, new Coordinates(starbaseX, starbaseY));
-            typeof(Quadrant).GetProperty("HasStarbase")!
-                .SetValue(quadrant, true);
+            // Set starbase location (HasStarbase is computed from StarbaseCoordinates)
+            quadrant.StarbaseCoordinates = new Coordinates(starbaseX, starbaseY);
 
             // Set initial state
             gameState.Enterprise.Energy = 2000;
@@ -184,8 +181,7 @@ namespace SuperStarTrek.Tests.Commands
 
             // Starbase is at (5, 5) - we're adjacent
             var quadrant = gameState.CurrentQuadrant;
-            typeof(Quadrant).GetProperty("StarbaseCoordinates")!
-                .SetValue(quadrant, new Coordinates(5, 5));
+            quadrant.StarbaseCoordinates = new Coordinates(5, 5);
 
             // Act - Move far away (warp 5 to the west)
             command.Execute(gameState, new[] { "7", "5" });
@@ -213,8 +209,7 @@ namespace SuperStarTrek.Tests.Commands
             gameState.Enterprise.SectorCoordinates = new Coordinates(enterpriseX, enterpriseY);
 
             var quadrant = gameState.CurrentQuadrant;
-            typeof(Quadrant).GetProperty("StarbaseCoordinates")!
-                .SetValue(quadrant, new Coordinates(starbaseX, starbaseY));
+            quadrant.StarbaseCoordinates = new Coordinates(starbaseX, starbaseY);
 
             // Mock a simple adjacency check (this is what NavigationCommand should do)
             var deltaX = Math.Abs(starbaseX - enterpriseX);
@@ -256,11 +251,9 @@ namespace SuperStarTrek.Tests.Commands
         {
             var gameState = new GameState(42);
 
-            // Set up quadrant with starbase
+            // Set up quadrant with starbase (HasStarbase is computed from StarbaseCoordinates)
             var quadrant = gameState.CurrentQuadrant;
-            typeof(Quadrant).GetProperty("HasStarbase")!.SetValue(quadrant, true);
-            typeof(Quadrant).GetProperty("StarbaseCoordinates")!
-                .SetValue(quadrant, new Coordinates(5, 5));
+            quadrant.StarbaseCoordinates = new Coordinates(5, 5);
 
             // Place Enterprise adjacent to starbase
             gameState.Enterprise.SectorCoordinates = new Coordinates(4, 4);
