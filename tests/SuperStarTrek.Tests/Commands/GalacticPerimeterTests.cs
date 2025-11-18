@@ -16,12 +16,15 @@ namespace SuperStarTrek.Tests.Commands
         /// </summary>
         private GameState CreateTestGameState(int quadX, int quadY, int sectorX, int sectorY, int energy)
         {
-            var gameState = new GameState(new Random(42));
+            var gameState = new GameState(42);
             gameState.Enterprise.QuadrantCoordinates = new Coordinates(quadX, quadY);
             gameState.Enterprise.SectorCoordinates = new Coordinates(sectorX, sectorY);
             gameState.Enterprise.Energy = energy;
-            gameState.Enterprise.Torpedoes = 10;
-            gameState.CurrentQuadrant.PlaceEnterprise(new Coordinates(sectorX, sectorY));
+            gameState.Enterprise.PhotonTorpedoes = 10;
+
+            // Ensure warp engines are functional
+            gameState.Enterprise.SetSystemDamage(ShipSystem.WarpEngines, 0.0);
+
             return gameState;
         }
 

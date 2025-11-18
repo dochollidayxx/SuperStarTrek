@@ -208,7 +208,7 @@ namespace SuperStarTrek.Tests.Commands
 
             // Assert - Docked ships are protected by starbase
             // The counter-attack should display protection message
-            Assert.Contains("STARBASE", result.Message.ToUpper());
+            Assert.Contains("STARBASE", result.Message?.ToUpper() ?? "");
         }
 
         [Fact]
