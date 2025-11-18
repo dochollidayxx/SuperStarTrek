@@ -123,7 +123,8 @@ namespace SuperStarTrek.Tests.Commands
             // Arrange
             var gameState = new GameState(42);
 
-            // Place starbase adjacent to Enterprise
+            // Place starbase south of Enterprise
+            // Course directions: 1=North, 3=East, 5=South, 7=West
             gameState.Enterprise.SectorCoordinates = new Coordinates(4, 4);
             gameState.CurrentQuadrant.PlaceStarbase(new Coordinates(4, 5));
 
@@ -133,8 +134,8 @@ namespace SuperStarTrek.Tests.Commands
 
             var torpedoCommand = new TorpedoCommand();
 
-            // Act - Fire torpedo at starbase (course 3 = east, sector 4,5)
-            var result = torpedoCommand.Execute(gameState, new[] { "3.0" });
+            // Act - Fire torpedo at starbase (course 5 = south, from 4,4 to 4,5)
+            var result = torpedoCommand.Execute(gameState, new[] { "5.0" });
 
             // Assert
             Assert.True(result.IsSuccess);
@@ -145,20 +146,23 @@ namespace SuperStarTrek.Tests.Commands
         }
 
         /// <summary>
-        /// Test: Starbase counter decremented correctly
+        /// Test: Starbase removed from quadrant after destruction
         /// BASIC: Line 5330 - B3=B3-1:B9=B9-1
         /// </summary>
         [Fact]
-        public void DestroyStarbase_DecrementsStarbaseCount()
+        public void DestroyStarbase_RemovesStarbaseFromQuadrant()
         {
             // Arrange
             var gameState = new GameState(42);
             gameState.Enterprise.SectorCoordinates = new Coordinates(3, 4);
 
             // Place a starbase
-            gameState.CurrentQuadrant.PlaceStarbase(new Coordinates(4, 4));
+            var starbaseCoords = new Coordinates(4, 4);
+            gameState.CurrentQuadrant.PlaceStarbase(starbaseCoords);
 
-            var initialCount = gameState.Galaxy.TotalStarbases;
+            // Verify starbase is present before firing
+            Assert.True(gameState.CurrentQuadrant.HasStarbase);
+            Assert.Equal(">!<", gameState.CurrentQuadrant.GetSectorDisplay(starbaseCoords));
 
             var torpedoCommand = new TorpedoCommand();
 
@@ -167,7 +171,11 @@ namespace SuperStarTrek.Tests.Commands
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Equal(initialCount - 1, gameState.Galaxy.TotalStarbases);
+            Assert.Contains("*** STARBASE DESTROYED ***", result.Message);
+
+            // Verify starbase is removed (B3=B3-1 in BASIC)
+            Assert.False(gameState.CurrentQuadrant.HasStarbase);
+            Assert.NotEqual(">!<", gameState.CurrentQuadrant.GetSectorDisplay(starbaseCoords));
         }
 
         /// <summary>
