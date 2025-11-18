@@ -291,24 +291,46 @@ namespace SuperStarTrek.Game
             }
 
             Console.WriteLine();
-            Console.WriteLine("**************************************************");
-            Console.WriteLine("*                  GAME OVER                    *");
-            Console.WriteLine("**************************************************");
-            Console.WriteLine();
-            Console.WriteLine(_gameState.GetMissionStatus());
 
+            // Display appropriate end game message based on mission outcome
             if (_gameState.IsMissionComplete)
             {
+                // Victory! Match BASIC lines 6370-6400
+                Console.WriteLine("CONGRULATION, CAPTAIN!  THEN LAST KLINGON BATTLE CRUISER");
+                Console.WriteLine("MENACING THE FDERATION HAS BEEN DESTROYED.");
                 Console.WriteLine();
-                Console.WriteLine($"YOUR EFFICIENCY RATING: {_gameState.CalculateEfficiencyRating():F2}");
-                Console.WriteLine();
-                Console.WriteLine("CONGRATULATIONS, CAPTAIN!");
-                Console.WriteLine("THE FEDERATION HAS BEEN SAVED!");
+                Console.WriteLine($"YOUR EFFICIENCY RATING IS {_gameState.CalculateEfficiencyRating():F2}");
             }
             else
             {
-                Console.WriteLine();
-                Console.WriteLine("BETTER LUCK NEXT TIME, CAPTAIN.");
+                // Defeat - match BASIC lines 6220-6280
+                if (_gameState.Enterprise.Energy <= 0 && _gameState.Enterprise.Shields <= 0)
+                {
+                    // Ship destroyed message already displayed by combat code (line 6240)
+                    // Just show the common end game info
+                }
+                Console.WriteLine($"IT IS STARDATE {_gameState.CurrentStardate:F1}");
+                Console.WriteLine($"THERE WERE {_gameState.KlingonsRemaining} KLINGON BATTLE CRUISERS LEFT AT");
+                Console.WriteLine("THE END OF YOUR MISSION.");
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
+
+            // Play again prompt (BASIC lines 6290-6360)
+            if (_gameState.StarbasesRemaining > 0)
+            {
+                Console.WriteLine("THE FEDERATION IS IN NEED OF A NEW STARSHIP COMMANDER");
+                Console.WriteLine("FOR A SIMILAR MISSION -- IF THERE IS A VOLUNTEER,");
+                Console.Write("LET HIM STEP FORWARD AND ENTER 'AYE': ");
+                var response = Console.ReadLine()?.Trim().ToUpper();
+
+                if (response == "AYE")
+                {
+                    // Start new game
+                    StartNewGame();
+                    return;
+                }
             }
 
             Console.WriteLine();

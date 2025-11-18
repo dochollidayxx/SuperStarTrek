@@ -264,12 +264,23 @@ namespace SuperStarTrek.Game.Commands
                 klingon.ShieldLevel = (int)(klingon.ShieldLevel / (3 + gameState.Random.NextDouble()));
             }
 
-            // Apply damage to shields first, then hull
+            // Apply damage to shields (original BASIC line 6060: S=S-H)
             if (totalDamage > 0)
             {
-                if (enterprise.Shields >= totalDamage)
+                enterprise.Shields -= totalDamage;
+
+                // Check if shields destroyed (original BASIC line 6090: IF S<=0 THEN 6240)
+                if (enterprise.Shields <= 0)
                 {
-                    enterprise.Shields -= totalDamage;
+                    // Ship destroyed! Set energy to 0 to trigger game over
+                    enterprise.Energy = 0;
+                    result.AppendLine();
+                    result.AppendLine("THE ENTERPRISE HAS BEEN DESTROYED.  THE FEDERATION ");
+                    result.AppendLine("WILL BE CONQUERED");
+                }
+                else
+                {
+                    // Shields absorbed damage (original BASIC line 6100)
                     result.AppendLine($"      <SHIELDS DOWN TO {enterprise.Shields} UNITS>");
 
                     // Check for system damage on heavy hits (original BASIC logic)
@@ -286,21 +297,6 @@ namespace SuperStarTrek.Game.Commands
                             enterprise.SetSystemDamage(system, enterprise.GetSystemDamage(system) - damageAmount);
                             result.AppendLine($"DAMAGE CONTROL REPORTS '{GetSystemName(system)}' DAMAGED BY THE HIT'");
                         }
-                    }
-                }
-                else
-                {
-                    var remainingDamage = totalDamage - enterprise.Shields;
-                    enterprise.Shields = 0;
-                    enterprise.Energy -= remainingDamage;
-
-                    result.AppendLine("      <SHIELDS DOWN TO 0 UNITS>");
-                    result.AppendLine($"HULL DAMAGE: {remainingDamage} UNITS");
-
-                    if (enterprise.Energy <= 0)
-                    {
-                        result.AppendLine("\nTHE ENTERPRISE HAS BEEN DESTROYED. THE FEDERATION WILL BE CONQUERED");
-                        // Game over logic would go here
                     }
                 }
             }
