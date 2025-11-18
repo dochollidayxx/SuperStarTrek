@@ -164,21 +164,31 @@ namespace SuperStarTrek.Game.Commands
             // Check for starbase hit
             if (cellContents == ">!<")
             {
+                // Original BASIC line 5330: PRINT"*** STARBASE DESTROYED ***":B3=B3-1:B9=B9-1
                 result.AppendLine("*** STARBASE DESTROYED ***");
                 currentQuadrant.RemoveStarbase(coordinates);
                 gameState.Galaxy.RemoveStarbase(enterprise.QuadrantCoordinates);
 
-                // Check if this was the last starbase and mission is still ongoing
-                if (gameState.Galaxy.TotalStarbases == 0 && gameState.KlingonsRemaining > 0)
+                // Original BASIC line 5360: IF B9>0 OR K9>T-T0-T9 THEN 5400
+                // Where T-T0-T9 = current - start - duration = -RemainingTime
+                // So K9>T-T0-T9 becomes K9>-RemainingTime, or K9+RemainingTime>0
+                // If starbases remain OR (Klingons + RemainingTime > 0), show court martial
+                // Otherwise (no starbases AND Klingons + RemainingTime <= 0), instant game over
+                if (gameState.Galaxy.TotalStarbases > 0 ||
+                    gameState.KlingonsRemaining + gameState.RemainingTime > 0)
                 {
-                    result.AppendLine("THAT DOES IT, CAPTAIN!!  YOU ARE HEREBY RELIEVED OF COMMAND");
-                    result.AppendLine("AND SENTENCED TO 99 STARDATES AT HARD LABOR ON CYGNUS 12!!");
-                }
-                else if (gameState.Galaxy.TotalStarbases > 0)
-                {
+                    // Original BASIC lines 5400-5410: Court martial warning
                     result.AppendLine("STARFLEET COMMAND REVIEWING YOUR RECORD TO CONSIDER");
                     result.AppendLine("COURT MARTIAL!");
-                    enterprise.IsDocked = false; // No longer docked if starbase destroyed
+                    enterprise.IsDocked = false; // D0=0 in BASIC
+                }
+                else
+                {
+                    // Original BASIC lines 5370-5380: Instant game over
+                    // Mission is impossible: no starbases and not enough time
+                    result.AppendLine("THAT DOES IT, CAPTAIN!!  YOU ARE HEREBY RELIEVED OF COMMAND");
+                    result.AppendLine("AND SENTENCED TO 99 STARDATES AT HARD LABOR ON CYGNUS 12!!");
+                    // Note: Actual game over will be triggered in main game loop
                 }
 
                 return true;
