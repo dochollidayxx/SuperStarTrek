@@ -111,7 +111,7 @@ namespace SuperStarTrek.Tests.Commands
             Assert.Contains("AVAILABLE COMMANDS:", help);
             Assert.Contains("SRS", help);
             Assert.Contains("LRS", help);
-            Assert.Contains("XXX - EMERGENCY EXIT", help);
+            Assert.Contains("XXX - TO RESIGN YOUR COMMAND", help);
             Assert.Contains("HELP or ? - THIS COMMAND LIST", help);
         }
     }
