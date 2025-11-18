@@ -118,9 +118,9 @@ namespace SuperStarTrek.Tests.Commands
             gameState.Enterprise.QuadrantCoordinates = new Coordinates(4, 4);
             gameState.Enterprise.SectorCoordinates = new Coordinates(4, 4);
             gameState.Enterprise.Energy = 1000;
-            gameState.Enterprise.Shields = 100; // Low shields to test damage
+            gameState.Enterprise.Shields = 1000; // Sufficient shields to survive counter-attack
 
-            var klingon = new KlingonShip(new Coordinates(4, 5), 300); // High shield Klingon
+            var klingon = new KlingonShip(new Coordinates(4, 5), 300); // High shield Klingon at distance 1
             gameState.CurrentQuadrant.PlaceKlingon(klingon);
             gameState.CurrentQuadrant.PlaceEnterprise(gameState.Enterprise.SectorCoordinates);
 
@@ -134,6 +134,7 @@ namespace SuperStarTrek.Tests.Commands
             Assert.True(result.IsSuccess);
             Assert.Contains("SHIELDS DOWN TO", result.Message);
             Assert.True(gameState.Enterprise.Shields < initialShields); // Shields should be reduced
+            Assert.True(gameState.Enterprise.Shields > 0); // Ship should survive
         }
 
         [Fact]
