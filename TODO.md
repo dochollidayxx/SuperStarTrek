@@ -511,9 +511,9 @@ The C# implementation had incorrect defeat logic that did NOT match the original
 
 **Dependency**: Requires Quadrant Name Generator (see Library Computer section)
 
-#### 6. Starbase Destruction Consequences (Lines 5330-5410)
+#### 6. Starbase Destruction Consequences (Lines 5330-5410) ✅ **VERIFIED AND FIXED**
 **BASIC Reference**: Lines 5330-5410 (in torpedo code)
-**Current Status**: Likely implemented, needs verification
+**Current Status**: ✅ **COMPLETE** - Verified and Fixed 2025-11-18
 
 **BASIC Logic**:
 ```basic
@@ -526,11 +526,22 @@ The C# implementation had incorrect defeat logic that did NOT match the original
 5410 PRINT"COURT MARTIAL!":D0=0
 ```
 
-**Verification Needed**:
-- [ ] Confirm instant game over if no starbases AND insufficient time
-- [ ] Check if court martial warning is displayed for starbase destruction
-- [ ] Verify B3 and B9 counters are decremented
-- [ ] Test condition: `B9 > 0 OR K9 > T - T0 - T9`
+**Verification Results**:
+- [x] ✅ **FIXED**: Condition now correctly implements `B9>0 OR K9>T-T0-T9` (translates to `starbases>0 OR klingons+remainingTime>0`)
+- [x] ✅ Instant game over when no starbases AND mission time severely expired
+- [x] ✅ Court martial warning displayed when starbases remain OR time allows
+- [x] ✅ B3 and B9 counters decremented correctly via `RemoveStarbase()`
+- [x] ✅ Undocking (D0=0) when starbase destroyed
+
+**Critical Issue Fixed**:
+The original C# implementation was **missing the time check**. It only checked if Klingons remained, not whether mission time allowed completion. The fix implements the exact BASIC formula:
+- Court Martial: `starbases > 0 OR (klingons + remainingTime > 0)`
+- Instant Game Over: `starbases = 0 AND (klingons + remainingTime ≤ 0)`
+
+**Changes Made**:
+- `TorpedoCommand.cs`: Fixed starbase hit logic with correct BASIC formula
+- Created `StarbaseDestructionTests.cs`: 7 comprehensive tests
+- Created `STARBASE-DESTRUCTION-VERIFICATION.md`: Detailed analysis document
 
 #### 7. Galactic Perimeter Messages (Lines 3800-3850)
 **BASIC Reference**: Lines 3800-3850 (in navigation code)
