@@ -116,15 +116,15 @@ namespace SuperStarTrek.Tests.Commands
         [Fact]
         public void NavigationBeyondWestBoundary_ShowsPerimeterMessage()
         {
-            // Arrange - Start at quadrant (7,4) near west edge (Q1 approaching 8)
-            // Absolute X = 8*7 + 8 = 64
-            var gameState = CreateTestGameState(7, 4, 8, 4, 3000);
+            // Arrange - Start at quadrant (8,4) near west edge (Q1=8 is max)
+            // Absolute X = 8*8 + 1 = 65
+            var gameState = CreateTestGameState(8, 4, 1, 4, 3000);
             var command = new NavigationCommand();
 
             // Act - Attempt to navigate west beyond galaxy boundary
-            // Course 7 = West (deltaX = 1), Warp 2 moves 16 sectors
-            // finalAbsoluteX = 64 + 16 = 80, newQuadrantX = 10 (exceeds boundary)
-            var result = command.Execute(gameState, new[] { "7", "2" });
+            // Course 7 = West (deltaX = 1), Warp 1 moves 8 sectors
+            // finalAbsoluteX = 65 + 8 = 73, newQuadrantX = 9 (exceeds boundary)
+            var result = command.Execute(gameState, new[] { "7", "1" });
 
             // Assert
             Assert.True(result.IsSuccess, "BASIC allows movement to boundary with warning messages");
@@ -152,7 +152,8 @@ namespace SuperStarTrek.Tests.Commands
             // "AT SECTOR S1, S2 OF QUADRANT Q1, Q2"
             Assert.Contains("SECTOR", result.Message ?? "");
             Assert.Contains("QUADRANT", result.Message ?? "");
-            Assert.Contains("1", result.Message ?? ""); // Should show Q1=1 or Q2 value
+            // Should contain the boundary position (8,8) or similar
+            Assert.Contains("8", result.Message ?? ""); // Should show boundary coordinates
         }
 
         [Fact]
