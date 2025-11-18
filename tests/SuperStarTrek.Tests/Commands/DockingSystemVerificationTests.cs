@@ -155,8 +155,8 @@ namespace SuperStarTrek.Tests.Commands
             var gameState = CreateGameStateWithAdjacentStarbase();
 
             // Add a Klingon to the quadrant
-            var klingon = new KlingonShip(new Coordinates(1, 1), 200, gameState.Random);
-            gameState.CurrentQuadrant.AddKlingon(klingon);
+            var klingon = new KlingonShip(new Coordinates(1, 1), 200);
+            gameState.CurrentQuadrant.KlingonShips.Add(klingon);
 
             gameState.Enterprise.IsDocked = true;
 
@@ -237,7 +237,7 @@ namespace SuperStarTrek.Tests.Commands
             gameState.Enterprise.IsDocked = true;
             gameState.Enterprise.SetSystemDamage(ShipSystem.WarpEngines, -2.5);
 
-            var command = new DamageControlCommand();
+            var command = new DamageControlCommand(gameState.Random);
 
             // Act
             var result = command.Execute(gameState, new string[0]);
